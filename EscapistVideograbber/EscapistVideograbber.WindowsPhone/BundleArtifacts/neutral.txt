@@ -1,0 +1,2 @@
+MainPackage=C:\Users\Michael\documents\visual studio 2013\Projects\EscapistVideograbber\EscapistVideograbber\EscapistVideograbber.WindowsPhone\bin\Debug\EscapistVideograbber.WindowsPhone_1.0.0.1_Bundle\EscapistVideograbber.WindowsPhone_1.0.0.1_AnyCPU_Debug.appx
+SymbolPackage=C:\Users\Michael\Documents\Visual Studio 2013\Projects\EscapistVideograbber\EscapistVideograbber\EscapistVideograbber.WindowsPhone_1.0.0.1_Debug_Test\EscapistVideograbber.WindowsPhone_1.0.0.1_AnyCPU_Debug.appxsym

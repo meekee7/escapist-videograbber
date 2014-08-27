@@ -1,0 +1,40 @@
+﻿<Page
+    x:Class="EscapistVideograbber.EnterURL"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:EscapistVideograbber"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
+    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+
+    <Grid x:Name="LayoutRoot">
+
+        <Grid.ChildrenTransitions>
+            <TransitionCollection>
+                <EntranceThemeTransition/>
+            </TransitionCollection>
+        </Grid.ChildrenTransitions>
+
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <!-- Titelbereich -->
+        <StackPanel Grid.Row="0" Margin="19,0,0,0">
+            <TextBlock x:Uid="AppNameBar" Text="MY APPLICATION" Style="{ThemeResource TitleTextBlockStyle}" Margin="0,12,0,0"/>
+            <TextBlock x:Uid="InputTitle" Text="page title" Margin="0,-6.5,0,26.5" Style="{ThemeResource HeaderTextBlockStyle}" CharacterSpacing="{ThemeResource PivotHeaderItemCharacterSpacing}"/>
+        </StackPanel>
+
+        <!--TODO: Inhalte sollten innerhalb des folgenden Rasters platziert werden,-->
+        <Grid Grid.Row="1" x:Name="ContentRoot" Margin="19,9.5,19,0">
+            <StackPanel VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
+                <TextBox x:Uid="URLBox"  x:Name="URLBox" Header="URL hier eingeben" InputScope="Url" PlaceholderText="EnterURLHere"/>
+                <Button x:Uid="PasteCurrentZP" x:Name="InsertZPBtn" Content="InsertCurrentZP" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Click="InsertZPBtn_Click"/>
+                <CheckBox x:Name="OpenAfterDLCB" x:Uid="OpenAfterDLCheck" Content="CheckBox" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
+                <Button x:Uid="EvaluateURL" x:Name="StartBtn" Content="EvaluateURL" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Click="StartBtn_Click"/>
+            </StackPanel>
+        </Grid>
+    </Grid>
+</Page>
