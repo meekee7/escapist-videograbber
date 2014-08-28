@@ -12,6 +12,7 @@ using HtmlAgilityPack;
 using System.Text.RegularExpressions;
 //using Windows.Storage;
 using Newtonsoft.Json.Linq;
+using System.Threading;
 
 namespace GrabbingLib
 {
@@ -39,9 +40,19 @@ namespace GrabbingLib
         }
 
         public static async Task evaluateURL(String videopage, Func<Exception, Task> erroraction, Action htmlaction,
-            Action jsonaction, Func<String, Task<String>> getFilePath, Downloader downloader, Func<String, Task> showmsg)
+            Action jsonaction, Func<String, Task<String>> getFilePath, Downloader downloader, Func<String, Task> showmsg, Action canceltask, CancellationToken ctoken)
         {
+            if (ctoken.IsCancellationRequested)
+            {
+                canceltask.Invoke();
+                return;
+            }
             ParsingResult htmlresult = await getJSONURL(videopage);
+            if (ctoken.IsCancellationRequested)
+            {
+                canceltask.Invoke();
+                return;
+            }
             if (htmlresult.error != null)
             {
                 await erroraction.Invoke(htmlresult.error);
@@ -49,6 +60,11 @@ namespace GrabbingLib
             }
             htmlaction.Invoke();
             ParsingResult jsonresult = await getVideoURL(htmlresult.URL);
+            if (ctoken.IsCancellationRequested)
+            {
+                canceltask.Invoke();
+                return;
+            }
             if (jsonresult.error != null)
             {
                 await erroraction.Invoke(jsonresult.error);
@@ -59,24 +75,26 @@ namespace GrabbingLib
             title = String.Join(" ", jsonresult.title.Split(Path.GetInvalidFileNameChars()));
             title = Regex.Replace(title, @"\s+", " ").Trim(); //Title may contain : and " characters and needs to be beautified
             String path = await getFilePath.Invoke(title);
+            if (ctoken.IsCancellationRequested)
+            {
+                canceltask.Invoke();
+                return;
+            }
             if (path != null)
-                try
-                {
-                    download = downloader;
-                    download.startdownload(jsonresult.URL, path);
-                    /*{
-                        StorageFile file = await StorageFile.GetFileFromPathAsync(path);
-                        download = new BackgroundDownloader().CreateDownload(new Uri(jsonresult.URL), file);
-                        await download.StartAsync().AsTask(new Progress<DownloadOperation>((DownloadOperation dlop) =>
-                        {
-                            updatehandler.Invoke(dlop.Progress.BytesReceived, dlop.Progress.TotalBytesToReceive, dlop.ResultFile.Path);
-                        }));
-                    }*/
-                }
-                catch (Exception error)
-                {
-                    Task task = erroraction.Invoke(error);
-                }
+            {
+                download = downloader;
+                download.startdownload(jsonresult.URL, path);
+                /*{
+                    StorageFile file = await StorageFile.GetFileFromPathAsync(path);
+                    download = new BackgroundDownloader().CreateDownload(new Uri(jsonresult.URL), file);
+                    await download.StartAsync().AsTask(new Progress<DownloadOperation>((DownloadOperation dlop) =>
+                    {
+                        updatehandler.Invoke(dlop.Progress.BytesReceived, dlop.Progress.TotalBytesToReceive, dlop.ResultFile.Path);
+                    }));
+                }*/
+            }
+            else
+                canceltask.Invoke();
         }
 
         public static async Task<ParsingResult> getJSONURL(String videopage)
@@ -129,10 +147,10 @@ namespace GrabbingLib
         public static async Task<ParsingResult> getVideoURL(String jsonurl)
         {
             ParsingResult result = new ParsingResult();
-            if (jsonurl == null)
-                return result;
             try
             {
+                if (jsonurl == null)
+                    throw new Exception("Video URL not found");
                 WebRequest request = HttpWebRequest.CreateHttp(jsonurl);
                 request.Credentials = CredentialCache.DefaultCredentials;
                 WebResponse response = await request.GetResponseAsync();
@@ -200,8 +218,8 @@ namespace GrabbingLib
     public abstract class Downloader
     {
         protected Action<ulong, ulong> updatehandler;
-        protected Action<String> finishhandler;
-        public Downloader(Action<ulong, ulong> updatehandler, Action<String> finishhandler)
+        protected Action<String, bool> finishhandler;
+        public Downloader(Action<ulong, ulong> updatehandler, Action<String, bool> finishhandler)
         {
             this.updatehandler = updatehandler;
             this.finishhandler = finishhandler;

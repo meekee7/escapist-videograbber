@@ -8,14 +8,12 @@ using System.Net;
 
 namespace DesktopGrabber
 {
-    class Utils
-    {
-    }
     public class Downloadhelper : GrabbingLib.Downloader
     {
         private WebClient download = null;
-        public Downloadhelper(Action<ulong, ulong> updatehandler, Action<string> finishhandler) : base(updatehandler,finishhandler)
-        {    
+        public Downloadhelper(Action<ulong, ulong> updatehandler, Action<string, bool> finishhandler)
+            : base(updatehandler, finishhandler)
+        {
         }
         public override void finishdl()
         {
@@ -34,7 +32,7 @@ namespace DesktopGrabber
             };
             download.DownloadFileCompleted += delegate(object sender, System.ComponentModel.AsyncCompletedEventArgs e)
             {
-                finishhandler.Invoke(targeturi);
+                finishhandler.Invoke(targeturi, e.Cancelled);
             };
             download.DownloadFileAsync(new Uri(sourceuri), targeturi);
         }

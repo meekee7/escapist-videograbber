@@ -55,6 +55,7 @@ namespace DesktopGrabber
             this.taskbar.ProgressValue = 0.0;
             this.tokensource.Cancel();
             GrabbingLib.Grabber.finishDL();
+            this.tokensource = new CancellationTokenSource();
         }
 
         private async void startcancelbtn_Click(object sender, RoutedEventArgs e)
@@ -68,7 +69,7 @@ namespace DesktopGrabber
             this.progbar.IsIndeterminate = true;
             this.taskbar.ProgressState = System.Windows.Shell.TaskbarItemProgressState.Indeterminate;
             this.proglabel.Content = "Loading website";
-            var task = GrabbingLib.Grabber.evaluateURL(this.urlbox.Text, this.showerror, () =>
+            await GrabbingLib.Grabber.evaluateURL(this.urlbox.Text, this.showerror, () =>
             {
                 this.proglabel.Content = "Loading video data";
             }, () =>
@@ -84,20 +85,24 @@ namespace DesktopGrabber
                 proglabel.Content = "Download running - " + (int) progress + " % ( "
                     + GrabbingLib.Grabber.ByteSize(received) + " / "
                     + GrabbingLib.Grabber.ByteSize(total) + " )";
-            }, (String filepath) =>
+            }, (String filepath, bool wascancelled) =>
             {
-                if (openchkbox.IsChecked != null && openchkbox.IsChecked.Value)
-                    System.Diagnostics.Process.Start(filepath);
-                else
-                    MessageBox.Show("The download is complete", "Task complete");
+                if (!wascancelled)
+                    if (openchkbox.IsChecked != null && openchkbox.IsChecked.Value)
+                        System.Diagnostics.Process.Start(filepath);
+                    else
+                        MessageBox.Show("The download is complete", "Task complete");
                 purge();
-            }), this.showmessage);
-            
+            }), this.showmessage, () =>
+            {
+                purge();
+            }, tokensource.Token);
         }
 
         private async Task showerror(Exception e)
         {
             MessageBox.Show(e.ToString(), "Error occured");
+            this.purge();
         }
 
         private async Task showmessage(String message)
@@ -119,6 +124,12 @@ namespace DesktopGrabber
         }
 
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
+        {
+            this.proglabel.Content = "Cancelling";
+            this.purge();
+        }
+
+        private void cancelbtn_Click(object sender, RoutedEventArgs e)
         {
             this.purge();
         }
