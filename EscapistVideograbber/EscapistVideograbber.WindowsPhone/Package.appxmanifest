@@ -4,7 +4,7 @@
   <mp:PhoneIdentity PhoneProductId="a107f97e-3c58-4af6-9dec-391c36c467ce" PhonePublisherId="00000000-0000-0000-0000-000000000000" />
   <Properties>
     <DisplayName>EscapistVideograbber.WindowsPhone</DisplayName>
-    <PublisherDisplayName>Michael Kürbis</PublisherDisplayName>
+    <PublisherDisplayName>-</PublisherDisplayName>
     <Logo>Assets\StoreLogo.png</Logo>
   </Properties>
   <Prerequisites>

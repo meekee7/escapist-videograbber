@@ -44,11 +44,20 @@ namespace EscapistVideograbber
     class Downloadhelper : GrabbingLib.Downloader
     {
         private static DownloadOperation download;
+
+        public Downloadhelper(Action<ulong, ulong> updatehandler, Action<string, bool> finishhandler)
+            : base(updatehandler, finishhandler)
+        {
+        }
+
         public override void finishdl()
         {
             {
                 if (download.Progress.Status != BackgroundTransferStatus.Completed || download.Progress.Status != BackgroundTransferStatus.Error || download.Progress.Status != BackgroundTransferStatus.Canceled)
+                {
                     download.AttachAsync().Cancel();
+                    this.finishhandler.Invoke(null, true);
+                }
                 download = null;
             }
         }
@@ -61,7 +70,11 @@ namespace EscapistVideograbber
                 download = new BackgroundDownloader().CreateDownload(new Uri(sourceuri), file);
                 await download.StartAsync().AsTask(new Progress<DownloadOperation>((DownloadOperation dlop) =>
                 {
-                    updatehandler.Invoke(dlop.Progress.BytesReceived, dlop.Progress.TotalBytesToReceive);
+                    ulong received = dlop.Progress.BytesReceived;
+                    ulong total = dlop.Progress.TotalBytesToReceive;
+                    updatehandler.Invoke(received, total);
+                    if (received == total)
+                        finishhandler.Invoke(dlop.ResultFile.Path, false);
                 }));
             }
         }

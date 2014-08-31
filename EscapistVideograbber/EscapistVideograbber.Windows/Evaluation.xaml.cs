@@ -81,14 +81,31 @@ namespace EscapistVideograbber
             }, () =>
             { //JSON parsed
                 StateLabel.Text = resload.GetString("StateLabel/DLStart");
-            }, this.FileChooser, new Downloadhelper(), async (ulong received, ulong total, String filepath) =>
+            }, this.FileChooser, new Downloadhelper(async (ulong received, ulong total) =>
             { //Progress in the download was made
-                double progress = ((double) received/ total) * 100;
+                double progress = ((double) received / total) * 100;
                 ProgBar.Value = progress;
                 StateLabel.Text = resload.GetString("StateLabel/DLProg") + ' ' + (int) progress + " % ( "
                     + Grabber.ByteSize(received) + " / "
                     + Grabber.ByteSize(total) + " )";
-                if (received == total)
+                /*if (received == total)
+                {
+                    if (Appstate.state.opendl)
+                        await Windows.System.Launcher.LaunchFileAsync(await Windows.Storage.StorageFile.GetFileFromPathAsync(""));
+                    else
+                    {
+                        MessageDialog dialog = new MessageDialog(resload.GetString("dlfinish/text"), resload.GetString("dlfinish/title"));
+                        dialog.Commands.Add(new UICommand(resload.GetString("dlfinish/ok")));
+                        await dialog.ShowAsync();
+                    }
+                    Grabber.finishDL();
+                    this.Frame.GoBack();
+                }*/
+            }, async (String filepath, bool wascancelled) =>
+            {//Finish is integrated into progress
+                if (wascancelled)
+                    this.Frame.GoBack(); //TODO
+                else
                 {
                     if (Appstate.state.opendl)
                         await Windows.System.Launcher.LaunchFileAsync(await Windows.Storage.StorageFile.GetFileFromPathAsync(filepath));
@@ -99,9 +116,10 @@ namespace EscapistVideograbber
                         await dialog.ShowAsync();
                     }
                     Grabber.finishDL();
-                    this.Frame.GoBack();
                 }
-            },this.showmsg);
+            }), this.showmsg, () =>
+            { //TODO cancel action
+            }, new System.Threading.CancellationToken()); //TODO token
         }
 
         /// <summary>
@@ -178,6 +196,6 @@ namespace EscapistVideograbber
             dialog.Commands.Add(new UICommand(resload.GetString("dlfinish/ok")));
             await dialog.ShowAsync();
         }
- 
+
     }
 }

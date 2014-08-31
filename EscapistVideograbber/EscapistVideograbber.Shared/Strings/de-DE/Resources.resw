@@ -183,4 +183,16 @@
   <data name="InputTitle.Text" xml:space="preserve">
     <value>Eingabe</value>
   </data>
+  <data name="overwritemsg.body" xml:space="preserve">
+    <value>Die Zieldatei existiert bereits. Soll sie überschrieben werden?</value>
+  </data>
+  <data name="overwritemsg.no" xml:space="preserve">
+    <value>Nein</value>
+  </data>
+  <data name="overwritemsg.title" xml:space="preserve">
+    <value>Datei überschreiben</value>
+  </data>
+  <data name="overwritemsg.yes" xml:space="preserve">
+    <value>Ja</value>
+  </data>
 </root>
