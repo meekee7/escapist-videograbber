@@ -58,7 +58,53 @@ namespace DesktopGrabber
             this.tokensource = new CancellationTokenSource();
         }
 
-        private async void startcancelbtn_Click(object sender, RoutedEventArgs e)
+        private void startcancelbtn_Click(object sender, RoutedEventArgs e)
+        {
+            this.startdl();
+        }
+
+        private async Task showerror(Exception e)
+        {
+            MessageBox.Show(e.ToString(), "Error occured");
+            this.purge();
+        }
+
+        private async Task showmessage(String message)
+        {
+            MessageBox.Show(message);
+        }
+
+        private async Task<String> FileChooser(String title)
+        {
+            var dialog = new Microsoft.Win32.SaveFileDialog();
+            dialog.DefaultExt = ".mp4";
+            dialog.FileName = title;
+            dialog.InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.MyVideos);
+            dialog.Filter = "MP4 Video Files |*.mp4";
+            if (dialog.ShowDialog().Value)
+                return dialog.FileName;
+            else
+                return null;
+        }
+
+        private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
+        {
+            this.proglabel.Content = "Cancelling";
+            this.purge();
+        }
+
+        private void cancelbtn_Click(object sender, RoutedEventArgs e)
+        {
+            this.purge();
+        }
+
+        private void urlbox_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.Key == Key.Return)
+                this.startdl();
+        }
+
+        private async void startdl()
         {
             this.urlbox.IsEnabled = false;
             this.latestzpbtn.IsEnabled = false;
@@ -97,41 +143,6 @@ namespace DesktopGrabber
             {
                 purge();
             }, tokensource.Token);
-        }
-
-        private async Task showerror(Exception e)
-        {
-            MessageBox.Show(e.ToString(), "Error occured");
-            this.purge();
-        }
-
-        private async Task showmessage(String message)
-        {
-            MessageBox.Show(message);
-        }
-
-        private async Task<String> FileChooser(String title)
-        {
-            var dialog = new Microsoft.Win32.SaveFileDialog();
-            dialog.DefaultExt = ".mp4";
-            dialog.FileName = title;
-            dialog.InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.MyVideos);
-            dialog.Filter = "MP4 Video Files |*.mp4";
-            if (dialog.ShowDialog().Value)
-                return dialog.FileName;
-            else
-                return null;
-        }
-
-        private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
-        {
-            this.proglabel.Content = "Cancelling";
-            this.purge();
-        }
-
-        private void cancelbtn_Click(object sender, RoutedEventArgs e)
-        {
-            this.purge();
         }
     }
 }

@@ -117,6 +117,7 @@ namespace EscapistVideograbber
         private void InsertZPBtn_Click(object sender, RoutedEventArgs e)
         {
             this.URLEnterBox.Text = GrabbingLib.Grabber.ZPLatestURL;
+            this.startdl(); //Yeah, not beautiful that we give the DL URL to the GUI
         }
 
         private async void InsertClipBtn_Click(object sender, RoutedEventArgs e)
@@ -128,11 +129,22 @@ namespace EscapistVideograbber
 
         private void StartBtn_Click(object sender, RoutedEventArgs e)
         {
-            this.Frame.Navigate(typeof(Evaluation));
+            this.startdl();
         }
 
         private void CheckBox_Checked(object sender, RoutedEventArgs e)
         {
+        }
+
+        private void URLEnterBox_KeyDown(object sender, KeyRoutedEventArgs e)
+        {
+            if (e.Key == Windows.System.VirtualKey.Enter)
+                this.startdl();
+        }
+
+        private void startdl()
+        {
+            this.Frame.Navigate(typeof(Evaluation));
         }
     }
 }

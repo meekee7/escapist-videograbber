@@ -46,7 +46,7 @@
             <TextBlock x:Uid="AppNameBar" x:Name="pageTitle" Text="{StaticResource AppName}" Style="{StaticResource HeaderTextBlockStyle}" Grid.Column="1" 
                         IsHitTestVisible="false" TextWrapping="NoWrap" VerticalAlignment="Bottom" Margin="0,0,30,40"/>
         </Grid>
-        <TextBox x:Uid="URLBox" x:Name="URLEnterBox" Header="EnterURLHere" HorizontalAlignment="Left" Margin="153,76,0,0" Grid.Row="1" VerticalAlignment="Top" Width="303" InputScope="Url" PlaceholderText="URLWriteHere"/>
+        <TextBox x:Uid="URLBox" x:Name="URLEnterBox" Header="EnterURLHere" HorizontalAlignment="Left" Margin="153,76,0,0" Grid.Row="1" VerticalAlignment="Top" Width="303" InputScope="Url" PlaceholderText="URLWriteHere" KeyDown="URLEnterBox_KeyDown"/>
         <Button x:Uid="PasteCurrentZP" x:Name="InsertZPBtn" Content="InsertCurrentZP" HorizontalAlignment="Left" Margin="150,155,0,0" Grid.Row="1" VerticalAlignment="Top" Width="309" Click="InsertZPBtn_Click"/>
         <Button x:Uid="PasteFromCb" x:Name="InsertClipBtn" Content="PasteCB" HorizontalAlignment="Left" Margin="150,208,0,0" Grid.Row="1" VerticalAlignment="Top" Width="309" Click="InsertClipBtn_Click"/>
         <Button x:Uid="EvaluateURL" x:Name="StartBtn" Content="EvaluateURL" HorizontalAlignment="Left" Margin="150,345,0,0" Grid.Row="1" VerticalAlignment="Top" Width="309" Click="StartBtn_Click"/>

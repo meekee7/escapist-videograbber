@@ -133,7 +133,7 @@
     <value>URL hier eingeben:</value>
   </data>
   <data name="PasteCurrentZP.Content" xml:space="preserve">
-    <value>Aktuelle ZP-Episode einfügen</value>
+    <value>Aktuelle ZP-Episode herunterladen</value>
   </data>
   <data name="PasteFromCb.Content" xml:space="preserve">
     <value>Aus Zwischenablage einfügen</value>

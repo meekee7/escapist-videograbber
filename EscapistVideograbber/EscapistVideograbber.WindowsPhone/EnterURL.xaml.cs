@@ -130,10 +130,23 @@ namespace EscapistVideograbber
         private void InsertZPBtn_Click(object sender, RoutedEventArgs e)
         {
             this.URLBox.Text = GrabbingLib.Grabber.ZPLatestURL;
+            this.startdl(); //Yeah, not beautiful that we give the DL URL to the GUI
         }
 
-        private async void StartBtn_Click(object sender, RoutedEventArgs e)
-        { //IFF the connection is not mobile, only wifi
+        private void StartBtn_Click(object sender, RoutedEventArgs e)
+        {
+            this.startdl();
+        }
+
+        private void URLBox_KeyDown(object sender, KeyRoutedEventArgs e)
+        {
+            if (e.Key == Windows.System.VirtualKey.Enter)
+                this.startdl();
+        }
+
+        private async void startdl()
+        {
+            //IFF the connection is not mobile, only wifi
             //if (DeviceNetworkInformation.IsWiFiEnabled && !DeviceNetworkInformation.IsCellularDataEnabled && DeviceNetworkInformation.IsNetworkAvailable)
             if (!Windows.Networking.Connectivity.NetworkInformation.GetInternetConnectionProfile().IsWwanConnectionProfile)
                 this.Frame.Navigate(typeof(Evaluation));

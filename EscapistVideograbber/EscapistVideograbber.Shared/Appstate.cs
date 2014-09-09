@@ -65,7 +65,6 @@ namespace EscapistVideograbber
         public override async void startdownload(string sourceuri, string targeturi)
         {
             {
-                //dlop.resultfile.path
                 StorageFile file = await StorageFile.GetFileFromPathAsync(targeturi);
                 download = new BackgroundDownloader().CreateDownload(new Uri(sourceuri), file);
                 await download.StartAsync().AsTask(new Progress<DownloadOperation>((DownloadOperation dlop) =>

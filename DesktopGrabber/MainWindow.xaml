@@ -7,7 +7,7 @@
     </Window.TaskbarItemInfo>
     <Grid>
         <Label Content="Insert URL of Escapist video page here:" HorizontalAlignment="Left" Margin="10,17,0,0" VerticalAlignment="Top"/>
-        <TextBox Name="urlbox" HorizontalAlignment="Left" Height="23" Margin="10,43,0,0" TextWrapping="NoWrap" Text="" VerticalAlignment="Top" Width="135"/>
+        <TextBox Name="urlbox" HorizontalAlignment="Left" Height="23" Margin="10,43,0,0" TextWrapping="NoWrap" Text="" VerticalAlignment="Top" Width="135" KeyDown="urlbox_KeyDown"/>
         <Button Name="latestzpbtn" Content="Insert latest ZP episode" HorizontalAlignment="Left" Margin="10,71,0,0" VerticalAlignment="Top" Width="135" Click="latestzpbtn_Click"/>
         <Button Name="pastebtn" Content="Paste from Clipboard" HorizontalAlignment="Left" Margin="10,96,0,0" VerticalAlignment="Top" Width="135" Click="pastebtn_Click"/>
         <CheckBox Name="openchkbox" Content="Open file after download" HorizontalAlignment="Left" Margin="10,121,0,0" VerticalAlignment="Top"/>
