@@ -19,6 +19,7 @@ using GrabbingLib;
 using Windows.UI.Popups;
 using Windows.ApplicationModel.Resources;
 using Windows.Storage.Pickers;
+using System.Threading;
 
 // Die Elementvorlage "Standardseite" ist unter http://go.microsoft.com/fwlink/?LinkId=234237 dokumentiert.
 
@@ -32,6 +33,8 @@ namespace EscapistVideograbber
 
         private NavigationHelper navigationHelper;
         private ObservableDictionary defaultViewModel = new ObservableDictionary();
+
+        private CancellationTokenSource tokensource;
 
         /// <summary>
         /// Dies kann in ein stark typisiertes Anzeigemodell geändert werden.
@@ -72,6 +75,8 @@ namespace EscapistVideograbber
         /// beibehalten wurde. Der Zustand ist beim ersten Aufrufen einer Seite NULL.</param>
         private async void navigationHelper_LoadState(object sender, LoadStateEventArgs e)
         {
+            this.tokensource = new CancellationTokenSource();
+            this.backButton.Click += backButton_Click;
             this.ProgBar.IsIndeterminate = true;
             ResourceLoader resload = new ResourceLoader();
             StateLabel.Text = resload.GetString("StateLabel/HTMLParse");
@@ -118,8 +123,16 @@ namespace EscapistVideograbber
                     Grabber.finishDL();
                 }
             }), this.showmsg, () =>
-            { //TODO cancel action
-            }, new System.Threading.CancellationToken()); //TODO token
+            {
+                GrabbingLib.Grabber.finishDL();
+                if (navigationHelper.CanGoBack())
+                    navigationHelper.GoBack();
+            }, this.tokensource.Token);
+        }
+
+        void backButton_Click(object sender, RoutedEventArgs e)
+        {
+            this.tokensource.Cancel();
         }
 
         /// <summary>
@@ -132,6 +145,7 @@ namespace EscapistVideograbber
         /// serialisierbarer Zustand.</param>
         private void navigationHelper_SaveState(object sender, SaveStateEventArgs e)
         {
+            this.backButton.Click -= backButton_Click;
         }
 
         #region NavigationHelper-Registrierung
