@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Windows.UI.Popups;
 using Windows.Storage;
 using Windows.Networking.BackgroundTransfer;
+using System.Linq;
 
 namespace EscapistVideograbber
 {
@@ -15,6 +16,8 @@ namespace EscapistVideograbber
 
         public String EnteredURL { get; set; }
         public bool opendl { get; set; }
+        public bool hq { get; set; }
+        public bool autosave { get; set; }
         //public Windows.Storage.StorageFile file { get; set; }
 
         private Appstate()
@@ -38,6 +41,18 @@ namespace EscapistVideograbber
             MessageDialog dialog = new MessageDialog(message, title);
             dialog.Commands.Add(new UICommand("OK"));
             await dialog.ShowAsync();
+        }
+
+        public static async Task<String> getAutoFilePath(String title)
+        {
+            String filename = title + ".mp4";
+            StorageFolder folder = (await Windows.Storage.KnownFolders.VideosLibrary.GetFoldersAsync()).FirstOrDefault(x => x.Name.Equals(GrabbingLib.Grabber.EscapistDir));
+            if (folder == null)
+                folder = await Windows.Storage.KnownFolders.VideosLibrary.CreateFolderAsync(GrabbingLib.Grabber.EscapistDir);
+            StorageFile file = (await folder.GetFilesAsync()).FirstOrDefault(x => x.Name.Equals(filename));
+            if (file == null)
+                file = await folder.CreateFileAsync(filename);
+            return file.Path;
         }
     }
 

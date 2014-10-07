@@ -33,6 +33,8 @@
                 <TextBox x:Uid="URLBox"  x:Name="URLBox" Header="URL hier eingeben" InputScope="Url" PlaceholderText="EnterURLHere" KeyDown="URLBox_KeyDown"/>
                 <Button x:Uid="PasteCurrentZP" x:Name="InsertZPBtn" Content="InsertCurrentZP" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Click="InsertZPBtn_Click"/>
                 <CheckBox x:Name="OpenAfterDLCB" x:Uid="OpenAfterDLCheck" Content="CheckBox" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
+                <CheckBox x:Name="HQCB" x:Uid="HQCheck" Content="CheckBox" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" IsChecked="True"/>
+                <CheckBox x:Name="AutosaveCB" x:Uid="AutosaveCheck" Content="CheckBox" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" IsChecked="True"/>
                 <Button x:Uid="EvaluateURL" x:Name="StartBtn" Content="EvaluateURL" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Click="StartBtn_Click"/>
             </StackPanel>
         </Grid>

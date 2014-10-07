@@ -28,6 +28,8 @@ namespace EscapistVideograbber
     {
 #if WINDOWS_PHONE_APP
         private TransitionCollection transitions;
+
+        ContinuationManager continuationManager;
 #endif
 
         /// <summary>
@@ -39,6 +41,22 @@ namespace EscapistVideograbber
             this.InitializeComponent();
             this.Suspending += this.OnSuspending;
         }
+
+#if WINDOWS_PHONE_APP
+        /// <summary>
+        /// Handle OnActivated event to deal with File Open/Save continuation activation kinds
+        /// </summary>
+        /// <param name="e">Application activated event arguments, it can be casted to proper sub-type based on ActivationKind</param>
+        protected async override void OnActivated(IActivatedEventArgs e)
+        {
+            base.OnActivated(e);
+
+            continuationManager = new ContinuationManager();
+            continuationManager.Continue(e as IContinuationActivatedEventArgs, Evaluation.thispage.Content as Frame);
+
+            Window.Current.Activate();
+        }
+#endif
 
         /// <summary>
         /// Wird aufgerufen, wenn die Anwendung durch den Endbenutzer normal gestartet wird.  Weitere Einstiegspunkte

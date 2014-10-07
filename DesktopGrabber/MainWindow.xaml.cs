@@ -50,6 +50,8 @@ namespace DesktopGrabber
             this.latestzpbtn.IsEnabled = true;
             this.pastebtn.IsEnabled = true;
             this.openchkbox.IsEnabled = true;
+            this.hqchkbox.IsEnabled = true;
+            this.autosavechkbox.IsEnabled = true;
             this.startbtn.IsEnabled = true;
             this.cancelbtn.IsEnabled = false;
             this.proglabel.Content = "";
@@ -80,15 +82,25 @@ namespace DesktopGrabber
 
         private async Task<String> FileChooser(String title)
         {
-            var dialog = new Microsoft.Win32.SaveFileDialog();
-            dialog.DefaultExt = ".mp4";
-            dialog.FileName = title;
-            dialog.InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.MyVideos);
-            dialog.Filter = "MP4 Video Files |*.mp4";
-            if (dialog.ShowDialog().Value)
-                return dialog.FileName;
+            if (this.autosavechkbox.IsChecked.HasValue && this.autosavechkbox.IsChecked.Value)
+            {
+                string videopath = Environment.GetFolderPath(Environment.SpecialFolder.MyVideos) + '\\' + GrabbingLib.Grabber.EscapistDir;
+                if (!System.IO.Directory.Exists(videopath))
+                    System.IO.Directory.CreateDirectory(videopath);
+                return videopath + '\\' + title + ".mp4";
+            }
             else
-                return null;
+            {
+                var dialog = new Microsoft.Win32.SaveFileDialog();
+                dialog.DefaultExt = ".mp4";
+                dialog.FileName = title;
+                dialog.InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.MyVideos);
+                dialog.Filter = "MP4 Video Files |*.mp4";
+                if (dialog.ShowDialog().Value)
+                    return dialog.FileName;
+                else
+                    return null;
+            }
         }
 
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
@@ -114,12 +126,14 @@ namespace DesktopGrabber
             this.latestzpbtn.IsEnabled = false;
             this.pastebtn.IsEnabled = false;
             this.openchkbox.IsEnabled = false;
+            this.hqchkbox.IsEnabled = false;
+            this.autosavechkbox.IsEnabled = false;
             this.startbtn.IsEnabled = false;
             this.cancelbtn.IsEnabled = true;
             this.progbar.IsIndeterminate = true;
             this.taskbar.ProgressState = System.Windows.Shell.TaskbarItemProgressState.Indeterminate;
             this.proglabel.Content = "Loading website";
-            await GrabbingLib.Grabber.evaluateURL(this.urlbox.Text, this.showerror, () =>
+            await GrabbingLib.Grabber.evaluateURL(this.urlbox.Text, this.hqchkbox.IsChecked.Value, this.showerror, () =>
             {
                 this.proglabel.Content = "Loading video data";
             }, () =>

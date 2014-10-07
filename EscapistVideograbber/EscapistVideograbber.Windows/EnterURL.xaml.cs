@@ -84,11 +84,9 @@ namespace EscapistVideograbber
         private void navigationHelper_SaveState(object sender, SaveStateEventArgs e)
         {
             Appstate.state.EnteredURL = this.URLEnterBox.Text;
-            bool? openafterdl = this.OpenAfterDLCB.IsChecked;
-            if (openafterdl != null)
-                Appstate.state.opendl = (bool) openafterdl;
-            else
-                Appstate.state.opendl = false;
+            Appstate.state.opendl = this.OpenAfterDLCB.IsChecked.HasValue ? this.OpenAfterDLCB.IsChecked.Value : false;
+            Appstate.state.hq = this.HQCB.IsChecked.HasValue ? this.HQCB.IsChecked.Value : false;
+            Appstate.state.autosave = this.AutosaveCB.IsChecked.HasValue ? this.AutosaveCB.IsChecked.Value : false;
         }
 
         #region NavigationHelper-Registrierung
@@ -145,6 +143,11 @@ namespace EscapistVideograbber
         private void startdl()
         {
             this.Frame.Navigate(typeof(Evaluation));
+        }
+
+        private void HQCB_Checked(object sender, RoutedEventArgs e)
+        {
+
         }
     }
 }

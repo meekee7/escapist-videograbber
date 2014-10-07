@@ -92,11 +92,9 @@ namespace EscapistVideograbber
         private void NavigationHelper_SaveState(object sender, SaveStateEventArgs e)
         {
             Appstate.state.EnteredURL = this.URLBox.Text;
-            bool? openafterdl = this.OpenAfterDLCB.IsChecked;
-            if (openafterdl != null)
-                Appstate.state.opendl = (bool) openafterdl;
-            else
-                Appstate.state.opendl = false;
+            Appstate.state.opendl = this.OpenAfterDLCB.IsChecked.HasValue ? this.OpenAfterDLCB.IsChecked.Value : false;
+            Appstate.state.hq = this.HQCB.IsChecked.HasValue ? this.HQCB.IsChecked.Value : false;
+            Appstate.state.autosave = this.AutosaveCB.IsChecked.HasValue ? this.AutosaveCB.IsChecked.Value : false;
             Windows.Phone.UI.Input.HardwareButtons.BackPressed -= HardwareButtons_BackPressed;
         }
 

@@ -31,15 +31,20 @@ namespace EscapistVideograbber
     /// <summary>
     /// Eine leere Seite, die eigenständig verwendet werden kann oder auf die innerhalb eines Frames navigiert werden kann.
     /// </summary>
-    public sealed partial class Evaluation : Page
+    public sealed partial class Evaluation : Page, IFileSavePickerContinuable
     {
+        public static Page thispage { get; private set; }
         private NavigationHelper navigationHelper;
         private ObservableDictionary defaultViewModel = new ObservableDictionary();
 
         private CancellationTokenSource tokensource;
+        AutoResetEvent signalevt = new AutoResetEvent(false);
+        public volatile String filepath = null; //We are passing data between threads through a global variable. Quick and very dirty
 
         public Evaluation()
         {
+            thispage = this;
+
             this.InitializeComponent();
 
             this.navigationHelper = new NavigationHelper(this);
@@ -82,7 +87,7 @@ namespace EscapistVideograbber
             this.ProgBar.IsIndeterminate = true;
             ResourceLoader resload = new ResourceLoader();
             StateLabel.Text = resload.GetString("StateLabel/HTMLParse");
-            await Grabber.evaluateURL(Appstate.state.EnteredURL, this.ShowError, () =>
+            await Grabber.evaluateURL(Appstate.state.EnteredURL, Appstate.state.hq, this.ShowError, () =>
             { //HTML parsed
                 StateLabel.Text = resload.GetString("StateLabel/HTMLDone");
             }, () =>
@@ -129,7 +134,7 @@ namespace EscapistVideograbber
                 GrabbingLib.Grabber.finishDL();
                 if (navigationHelper.CanGoBack())
                     navigationHelper.GoBack();
-            }, this.tokensource.Token); 
+            }, this.tokensource.Token);
         }
 
         void HardwareButtons_BackPressed(object sender, Windows.Phone.UI.Input.BackPressedEventArgs e)
@@ -150,7 +155,8 @@ namespace EscapistVideograbber
             Windows.Phone.UI.Input.HardwareButtons.BackPressed -= HardwareButtons_BackPressed;
         }
 
-        private async Task<String> FileChooser(String title)
+        /*
+         * private async Task<String> FileChooser(String title)
         {
             /*ResourceLoader resload = new ResourceLoader();
             FileSavePicker picker = new FileSavePicker();
@@ -158,7 +164,7 @@ namespace EscapistVideograbber
             picker.FileTypeChoices.Add(resload.GetString("FileChoiceMP4"), new List<String>() { ".mp4" });
             picker.SuggestedFileName = title;
             picker.SuggestedStartLocation = PickerLocationId.VideosLibrary;
-            picker.PickSaveFileAndContinue();*/
+            picker.PickSaveFileAndContinue();
             String filename = title + ".mp4";
             String path = null;
 
@@ -184,6 +190,71 @@ namespace EscapistVideograbber
             }
             //await showmsg(path);
             return path;
+            //return (await picker.).Path;
+        }*/
+
+        public void ContinueFileSavePicker(Windows.ApplicationModel.Activation.FileSavePickerContinuationEventArgs args)
+        {
+            filepath = args != null && args.File != null && args.File.Path != null ? args.File.Path : null;
+            signalevt.Set();
+        }
+
+        private async Task<String> FileChooser(String title)
+        {
+            if (Appstate.state.autosave)
+                return await CommHelp.getAutoFilePath(title);
+            else
+            {
+                Task waitforresult = Task.Factory.StartNew(() =>
+                {
+                    signalevt.WaitOne();
+                });
+
+                Task choosertask = Task.Factory.StartNew(async () =>
+                {
+                    await this.Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
+                    {
+                        ResourceLoader resload = new ResourceLoader();
+                        FileSavePicker picker = new FileSavePicker();
+                        picker.DefaultFileExtension = ".mp4";
+                        picker.FileTypeChoices.Add(resload.GetString("FileChoiceMP4"), new List<String>() { ".mp4" });
+                        picker.SuggestedFileName = title;
+                        picker.SuggestedStartLocation = PickerLocationId.VideosLibrary;
+                        picker.PickSaveFileAndContinue();
+                    });
+                });
+                //waitforresult.Start();
+                //choosertask.Start();
+
+                await waitforresult;
+
+                return filepath;
+            }
+            /*String filename = title + ".mp4";
+            String path = null;
+
+            StorageFile file = (await Windows.Storage.KnownFolders.VideosLibrary.GetFilesAsync()).FirstOrDefault(x => x.Name.Equals(filename));
+            if (file == null)
+            {
+                file = await KnownFolders.VideosLibrary.CreateFileAsync(filename);
+                path = file.Path;
+            }
+            else
+            {
+                ResourceLoader resload = new ResourceLoader();
+                MessageDialog msgdialog = new MessageDialog(resload.GetString("overwritemsg/body"), resload.GetString("overwritemsg/title"));
+                msgdialog.Commands.Add(new UICommand(resload.GetString("overwritemsg/yes"), (IUICommand command) =>
+                {
+                    path = file.Path;
+                }));
+                msgdialog.Commands.Add(new UICommand(resload.GetString("overwritemsg/no"), (IUICommand command) =>
+                {
+                    path = null;
+                }));
+                await msgdialog.ShowAsync();
+            }
+            //await showmsg(path);
+            return path;*/
             //return (await picker.).Path;
         }
 

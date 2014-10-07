@@ -195,4 +195,10 @@
   <data name="overwritemsg.yes" xml:space="preserve">
     <value>Ja</value>
   </data>
+  <data name="AutosaveCheck.Content" xml:space="preserve">
+    <value>In Videos\Escapist speichern</value>
+  </data>
+  <data name="HQCheck.Content" xml:space="preserve">
+    <value>HQ wenn möglich</value>
+  </data>
 </root>

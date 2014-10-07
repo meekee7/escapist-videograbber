@@ -19,6 +19,7 @@ namespace GrabbingLib
     public class Grabber
     {
         public static readonly String ZPLatestURL = "http://www.escapistmagazine.com/videos/view/zero-punctuation/latest";
+        public static readonly String EscapistDir = "Escapist";
         private static Downloader download = null;
 
         //There are no instances of Grabber
@@ -39,7 +40,7 @@ namespace GrabbingLib
             }*/
         }
 
-        public static async Task evaluateURL(String videopage, Func<Exception, Task> erroraction, Action htmlaction,
+        public static async Task evaluateURL(String videopage, bool hq, Func<Exception, Task> erroraction, Action htmlaction,
             Action jsonaction, Func<String, Task<String>> getFilePath, Downloader downloader, Func<String, Task> showmsg, Action canceltask, CancellationToken ctoken)
         {
             if (ctoken.IsCancellationRequested)
@@ -47,7 +48,7 @@ namespace GrabbingLib
                 canceltask.Invoke();
                 return;
             }
-            ParsingResult htmlresult = await getJSONURL(videopage);
+            ParsingResult htmlresult = await getJSONURL(videopage, hq);
             if (ctoken.IsCancellationRequested)
             {
                 canceltask.Invoke();
@@ -97,7 +98,7 @@ namespace GrabbingLib
                 canceltask.Invoke();
         }
 
-        public static async Task<ParsingResult> getJSONURL(String videopage)
+        public static async Task<ParsingResult> getJSONURL(String videopage, bool hq)
         {
             ParsingResult result = new ParsingResult();
             try
@@ -119,7 +120,9 @@ namespace GrabbingLib
                                     foreach (HtmlAttribute hrefattr in node.Attributes)
                                         if (hrefattr.Name.Equals("href"))
                                         {
-                                            result.URL = (WebUtility.UrlDecode(hrefattr.Value.Split('=')[1]).Split('?'))[0] + "?hq=1";
+                                            result.URL = (WebUtility.UrlDecode(hrefattr.Value.Split('=')[1]).Split('?'))[0];
+                                            if (hq)
+                                                result.URL += "?hq=1";
                                             if (result.title != null)
                                                 return result;
                                         }

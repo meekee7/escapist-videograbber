@@ -80,7 +80,7 @@ namespace EscapistVideograbber
             this.ProgBar.IsIndeterminate = true;
             ResourceLoader resload = new ResourceLoader();
             StateLabel.Text = resload.GetString("StateLabel/HTMLParse");
-            await Grabber.evaluateURL(Appstate.state.EnteredURL, this.ShowError, () =>
+            await Grabber.evaluateURL(Appstate.state.EnteredURL, Appstate.state.hq, this.ShowError, () =>
             { //HTML parsed
                 StateLabel.Text = resload.GetString("StateLabel/HTMLDone");
             }, () =>
@@ -178,13 +178,19 @@ namespace EscapistVideograbber
 
         private async Task<String> FileChooser(String title)
         {
-            ResourceLoader resload = new ResourceLoader();
-            FileSavePicker picker = new FileSavePicker();
-            picker.DefaultFileExtension = ".mp4";
-            picker.FileTypeChoices.Add(resload.GetString("FileChoiceMP4"), new List<String>() { ".mp4" });
-            picker.SuggestedFileName = title;
-            picker.SuggestedStartLocation = PickerLocationId.VideosLibrary;
-            return (await picker.PickSaveFileAsync()).Path;
+            if (Appstate.state.autosave)
+                return await CommHelp.getAutoFilePath(title);
+            else
+            {
+                ResourceLoader resload = new ResourceLoader();
+                FileSavePicker picker = new FileSavePicker();
+                picker.DefaultFileExtension = ".mp4";
+                picker.FileTypeChoices.Add(resload.GetString("FileChoiceMP4"), new List<String>() { ".mp4" });
+                picker.SuggestedFileName = title;
+                picker.SuggestedStartLocation = PickerLocationId.VideosLibrary;
+                var file = await picker.PickSaveFileAsync();
+                return file != null ? file.Path : null;
+            }
         }
 
         private async Task ShowError(Exception e)
