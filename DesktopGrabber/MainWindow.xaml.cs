@@ -32,12 +32,16 @@ namespace DesktopGrabber
         private void latestzpbtn_Click(object sender, RoutedEventArgs e)
         {
             this.urlbox.Text = GrabbingLib.Grabber.ZPLatestURL;
+            this.startdl();
         }
 
         private void pastebtn_Click(object sender, RoutedEventArgs e)
         {
             if (Clipboard.ContainsText())
+            {
                 this.urlbox.Text = Clipboard.GetText();
+                this.startdl();
+            }
         }
 
         private void purge()

@@ -119,7 +119,7 @@ namespace GrabbingLib
                                     foreach (HtmlAttribute hrefattr in node.Attributes)
                                         if (hrefattr.Name.Equals("href"))
                                         {
-                                            result.URL = (WebUtility.UrlDecode(hrefattr.Value.Split('=')[1]).Split('?'))[0];
+                                            result.URL = (WebUtility.UrlDecode(hrefattr.Value.Split('=')[1]).Split('?'))[0] + "?hq=1";
                                             if (result.title != null)
                                                 return result;
                                         }
@@ -161,7 +161,7 @@ namespace GrabbingLib
                 foreach (JObject elem in (JArray) obj["playlist"])
                     if (((String) elem["eventCategory"]).Equals("Video"))
                     {
-                        result.URL = (String) elem["url"];
+                        result.URL = ((String) elem["url"]); //.Replace("/mp4/", "/mp4_hq/"); //Trying to get HQ videos here leads to 404 errors
                         return result;
                     }
 
