@@ -1,24 +1,19 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+using System.ComponentModel;
+using System.Diagnostics;
+using System.IO;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
-
-using System.Threading;
+using System.Windows.Shell;
+using GrabbingLib;
+using Microsoft.Win32;
 
 namespace DesktopGrabber
 {
     /// <summary>
-    /// Interaktionslogik für MainWindow.xaml
+    ///     Interaktionslogik für MainWindow.xaml
     /// </summary>
     public partial class MainWindow : Window
     {
@@ -31,48 +26,48 @@ namespace DesktopGrabber
 
         private void latestzpbtn_Click(object sender, RoutedEventArgs e)
         {
-            this.urlbox.Text = GrabbingLib.Grabber.ZPLatestURL;
-            this.startdl();
+            urlbox.Text = Grabber.ZPLatestURL;
+            startdl();
         }
 
         private void pastebtn_Click(object sender, RoutedEventArgs e)
         {
             if (Clipboard.ContainsText())
             {
-                this.urlbox.Text = Clipboard.GetText();
-                this.startdl();
+                urlbox.Text = Clipboard.GetText();
+                startdl();
             }
         }
 
         private void purge()
         {
-            this.urlbox.IsEnabled = true;
-            this.latestzpbtn.IsEnabled = true;
-            this.pastebtn.IsEnabled = true;
-            this.openchkbox.IsEnabled = true;
-            this.hqchkbox.IsEnabled = true;
-            this.autosavechkbox.IsEnabled = true;
-            this.startbtn.IsEnabled = true;
-            this.cancelbtn.IsEnabled = false;
-            this.proglabel.Content = "";
-            this.progbar.Value = 0;
-            this.progbar.IsIndeterminate = false;
-            this.taskbar.ProgressState = System.Windows.Shell.TaskbarItemProgressState.None;
-            this.taskbar.ProgressValue = 0.0;
-            this.tokensource.Cancel();
-            GrabbingLib.Grabber.finishDL();
-            this.tokensource = new CancellationTokenSource();
+            urlbox.IsEnabled = true;
+            latestzpbtn.IsEnabled = true;
+            pastebtn.IsEnabled = true;
+            openchkbox.IsEnabled = true;
+            hqchkbox.IsEnabled = true;
+            autosavechkbox.IsEnabled = true;
+            startbtn.IsEnabled = true;
+            cancelbtn.IsEnabled = false;
+            proglabel.Content = "";
+            progbar.Value = 0;
+            progbar.IsIndeterminate = false;
+            taskbar.ProgressState = TaskbarItemProgressState.None;
+            taskbar.ProgressValue = 0.0;
+            tokensource.Cancel();
+            Grabber.finishDL();
+            tokensource = new CancellationTokenSource();
         }
 
         private void startcancelbtn_Click(object sender, RoutedEventArgs e)
         {
-            this.startdl();
+            startdl();
         }
 
         private async Task showerror(Exception e)
         {
             MessageBox.Show(e.ToString(), "Error occured");
-            this.purge();
+            purge();
         }
 
         private async Task showmessage(String message)
@@ -82,85 +77,80 @@ namespace DesktopGrabber
 
         private async Task<String> FileChooser(String title)
         {
-            if (this.autosavechkbox.IsChecked.HasValue && this.autosavechkbox.IsChecked.Value)
+            if (autosavechkbox.IsChecked.HasValue && autosavechkbox.IsChecked.Value)
             {
-                string videopath = Environment.GetFolderPath(Environment.SpecialFolder.MyVideos) + '\\' + GrabbingLib.Grabber.EscapistDir;
-                if (!System.IO.Directory.Exists(videopath))
-                    System.IO.Directory.CreateDirectory(videopath);
+                string videopath = Environment.GetFolderPath(Environment.SpecialFolder.MyVideos) + '\\' +
+                                   Grabber.EscapistDir;
+                if (!Directory.Exists(videopath))
+                    Directory.CreateDirectory(videopath);
                 return videopath + '\\' + title + ".mp4";
             }
-            else
+            var dialog = new SaveFileDialog
             {
-                var dialog = new Microsoft.Win32.SaveFileDialog();
-                dialog.DefaultExt = ".mp4";
-                dialog.FileName = title;
-                dialog.InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.MyVideos);
-                dialog.Filter = "MP4 Video Files |*.mp4";
-                if (dialog.ShowDialog().Value)
-                    return dialog.FileName;
-                else
-                    return null;
-            }
+                DefaultExt = ".mp4",
+                FileName = title,
+                InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.MyVideos),
+                Filter = "MP4 Video Files |*.mp4"
+            };
+            var showDialog = dialog.ShowDialog();
+            if (showDialog != null && showDialog.Value)
+                return dialog.FileName;
+            return null;
         }
 
-        private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
+        private void Window_Closing(object sender, CancelEventArgs e)
         {
-            this.proglabel.Content = "Cancelling";
-            this.purge();
+            proglabel.Content = "Cancelling";
+            purge();
         }
 
         private void cancelbtn_Click(object sender, RoutedEventArgs e)
         {
-            this.purge();
+            purge();
         }
 
         private void urlbox_KeyDown(object sender, KeyEventArgs e)
         {
             if (e.Key == Key.Return)
-                this.startdl();
+                startdl();
         }
 
         private async void startdl()
         {
-            this.urlbox.IsEnabled = false;
-            this.latestzpbtn.IsEnabled = false;
-            this.pastebtn.IsEnabled = false;
-            this.openchkbox.IsEnabled = false;
-            this.hqchkbox.IsEnabled = false;
-            this.autosavechkbox.IsEnabled = false;
-            this.startbtn.IsEnabled = false;
-            this.cancelbtn.IsEnabled = true;
-            this.progbar.IsIndeterminate = true;
-            this.taskbar.ProgressState = System.Windows.Shell.TaskbarItemProgressState.Indeterminate;
-            this.proglabel.Content = "Loading website";
-            await GrabbingLib.Grabber.evaluateURL(this.urlbox.Text, this.hqchkbox.IsChecked.Value, this.showerror, () =>
-            {
-                this.proglabel.Content = "Loading video data";
-            }, () =>
-            {
-                this.proglabel.Content = "Starting video download";
-            }, this.FileChooser, new Downloadhelper((ulong received, ulong total) =>
-            {
-                double progress = ((double) received / total) * 100;
-                progbar.Value = progress;
-                progbar.IsIndeterminate = false;
-                taskbar.ProgressState = System.Windows.Shell.TaskbarItemProgressState.Normal;
-                taskbar.ProgressValue = progress / 100.0;
-                proglabel.Content = "Download running - " + (int) progress + " % ( "
-                    + GrabbingLib.Grabber.ByteSize(received) + " / "
-                    + GrabbingLib.Grabber.ByteSize(total) + " )";
-            }, (String filepath, bool wascancelled) =>
-            {
-                if (!wascancelled)
-                    if (openchkbox.IsChecked != null && openchkbox.IsChecked.Value)
-                        System.Diagnostics.Process.Start(filepath);
-                    else
-                        MessageBox.Show("The download is complete", "Task complete");
-                purge();
-            }), this.showmessage, () =>
-            {
-                purge();
-            }, tokensource.Token);
+            urlbox.IsEnabled = false;
+            latestzpbtn.IsEnabled = false;
+            pastebtn.IsEnabled = false;
+            openchkbox.IsEnabled = false;
+            hqchkbox.IsEnabled = false;
+            autosavechkbox.IsEnabled = false;
+            startbtn.IsEnabled = false;
+            cancelbtn.IsEnabled = true;
+            progbar.IsIndeterminate = true;
+            taskbar.ProgressState = TaskbarItemProgressState.Indeterminate;
+            proglabel.Content = "Loading website";
+            await
+                Grabber.evaluateURL(urlbox.Text, hqchkbox.IsChecked != null && hqchkbox.IsChecked.Value, showerror,
+                    () => { proglabel.Content = "Loading video data"; },
+                    () => { proglabel.Content = "Starting video download"; }, FileChooser,
+                    new Downloadhelper((received, total) =>
+                    {
+                        double progress = ((double) received/total)*100;
+                        progbar.Value = progress;
+                        progbar.IsIndeterminate = false;
+                        taskbar.ProgressState = TaskbarItemProgressState.Normal;
+                        taskbar.ProgressValue = progress/100.0;
+                        proglabel.Content = "Download running - " + (int) progress + " % ( "
+                                            + Grabber.ByteSize(received) + " / "
+                                            + Grabber.ByteSize(total) + " )";
+                    }, delegate(string filepath, bool wascancelled)
+                    {
+                        if (!wascancelled)
+                            if (openchkbox.IsChecked != null && openchkbox.IsChecked.Value)
+                                Process.Start(filepath);
+                            else
+                                MessageBox.Show("The download is complete", "Task complete");
+                        purge();
+                    }), showmessage, purge, tokensource.Token);
         }
     }
 }
