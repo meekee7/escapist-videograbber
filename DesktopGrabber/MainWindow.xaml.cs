@@ -92,7 +92,7 @@ namespace DesktopGrabber
                 InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.MyVideos),
                 Filter = "MP4 Video Files |*.mp4"
             };
-            var showDialog = dialog.ShowDialog();
+            bool? showDialog = dialog.ShowDialog();
             if (showDialog != null && showDialog.Value)
                 return dialog.FileName;
             return null;
@@ -134,11 +134,11 @@ namespace DesktopGrabber
                     () => { proglabel.Content = "Starting video download"; }, FileChooser,
                     new Downloadhelper((received, total) =>
                     {
-                        double progress = ((double) received/total)*100;
+                        double progress = ((double) received / total) * 100;
                         progbar.Value = progress;
                         progbar.IsIndeterminate = false;
                         taskbar.ProgressState = TaskbarItemProgressState.Normal;
-                        taskbar.ProgressValue = progress/100.0;
+                        taskbar.ProgressValue = progress / 100.0;
                         proglabel.Content = "Download running - " + (int) progress + " % ( "
                                             + Grabber.ByteSize(received) + " / "
                                             + Grabber.ByteSize(total) + " )";
@@ -151,6 +151,11 @@ namespace DesktopGrabber
                                 MessageBox.Show("The download is complete", "Task complete");
                         purge();
                     }), showmessage, purge, tokensource.Token);
+        }
+
+        private void clearbtn_Click(object sender, RoutedEventArgs e)
+        {
+            urlbox.Text = String.Empty;
         }
     }
 }

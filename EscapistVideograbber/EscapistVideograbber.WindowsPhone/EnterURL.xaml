@@ -30,11 +30,18 @@
         <!--TODO: Inhalte sollten innerhalb des folgenden Rasters platziert werden,-->
         <Grid Grid.Row="1" x:Name="ContentRoot" Margin="19,9.5,19,0">
             <StackPanel VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
-                <TextBox x:Uid="URLBox"  x:Name="URLBox" Header="URL hier eingeben" InputScope="Url" PlaceholderText="EnterURLHere" KeyDown="URLBox_KeyDown"/>
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition></ColumnDefinition>
+                    <ColumnDefinition Width="120"></ColumnDefinition>
+                    </Grid.ColumnDefinitions>
+                    <TextBox x:Uid="URLBox"  x:Name="URLBox" Header="URL hier eingeben" InputScope="Url" PlaceholderText="EnterURLHere" KeyDown="URLBox_KeyDown" Grid.Column="0"/>
+                    <Button x:Name="clearbtn" x:Uid="ClearBtn" Content="Clear" Grid.Column="1" VerticalAlignment="Bottom" HorizontalAlignment="Center" Click="clearbtn_Click"/>
+                </Grid>
                 <Button x:Uid="PasteCurrentZP" x:Name="InsertZPBtn" Content="InsertCurrentZP" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Click="InsertZPBtn_Click"/>
-                <CheckBox x:Name="OpenAfterDLCB" x:Uid="OpenAfterDLCheck" Content="CheckBox" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
-                <CheckBox x:Name="HQCB" x:Uid="HQCheck" Content="CheckBox" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" IsChecked="True"/>
-                <CheckBox x:Name="AutosaveCB" x:Uid="AutosaveCheck" Content="CheckBox" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" IsChecked="True"/>
+                <CheckBox x:Name="OpenAfterDLCB" x:Uid="OpenAfterDLCheck" Content="Open" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
+                <CheckBox x:Name="HQCB" x:Uid="HQCheck" Content="HQ" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" IsChecked="True"/>
+                <CheckBox x:Name="AutosaveCB" x:Uid="AutosaveCheck" Content="Autosave" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" IsChecked="True"/>
                 <Button x:Uid="EvaluateURL" x:Name="StartBtn" Content="EvaluateURL" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Click="StartBtn_Click"/>
             </StackPanel>
         </Grid>

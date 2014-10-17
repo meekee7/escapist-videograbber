@@ -145,7 +145,7 @@
     <value>OK</value>
   </data>
   <data name="dlfinish.text" xml:space="preserve">
-    <value>Der Download des Videos wurde erfolgreich abgeschlossen.</value>
+    <value>Der Download des Videos wurde erfolgreich abgeschlossen. Die Datei wurde unter {0:S} gespeichert.</value>
   </data>
   <data name="dlfinish.title" xml:space="preserve">
     <value>Vorgang abgeschlossen</value>
@@ -200,5 +200,8 @@
   </data>
   <data name="HQCheck.Content" xml:space="preserve">
     <value>HQ wenn möglich</value>
+  </data>
+  <data name="ClearBtn.Content" xml:space="preserve">
+    <value>Löschen</value>
   </data>
 </root>
