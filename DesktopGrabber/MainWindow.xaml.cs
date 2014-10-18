@@ -148,7 +148,8 @@ namespace DesktopGrabber
                             if (openchkbox.IsChecked != null && openchkbox.IsChecked.Value)
                                 Process.Start(filepath);
                             else
-                                MessageBox.Show("The download is complete", "Task complete");
+                                MessageBox.Show("The download is complete. The file was saved to " + filepath,
+                                    "Task complete");
                         purge();
                     }), showmessage, purge, tokensource.Token);
         }
