@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2013
-VisualStudioVersion = 12.0.30723.0
+VisualStudioVersion = 12.0.31101.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "EscapistVideograbber", "EscapistVideograbber", "{B51CBB63-B68F-406C-ADF1-DFCB45D39614}"
 	ProjectSection(SolutionItems) = preProject
@@ -15,8 +15,6 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EscapistVideograbber.WindowsPhone", "EscapistVideograbber\EscapistVideograbber.WindowsPhone\EscapistVideograbber.WindowsPhone.csproj", "{80071C8C-8881-45B9-9F27-BABD3D0C2F6E}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GrabbingLib", "GrabbingLib\GrabbingLib.csproj", "{F4A28537-BFFF-4BFD-808E-26C30750DE8B}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HtmlAgilityPack.Universal", "HtmlAgilityPack\HtmlAgilityPack.Universal\HtmlAgilityPack.Universal.csproj", "{B1D6F70C-BA1F-47D7-ADD5-5B8A6DD54E54}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DesktopGrabber", "DesktopGrabber\DesktopGrabber.csproj", "{86613033-837C-4DC1-8ACA-2EB3CFE3DCE5}"
 EndProject
@@ -91,16 +89,6 @@ Global
 		{F4A28537-BFFF-4BFD-808E-26C30750DE8B}.Release|ARM.ActiveCfg = Release|Any CPU
 		{F4A28537-BFFF-4BFD-808E-26C30750DE8B}.Release|x64.ActiveCfg = Release|Any CPU
 		{F4A28537-BFFF-4BFD-808E-26C30750DE8B}.Release|x86.ActiveCfg = Release|Any CPU
-		{B1D6F70C-BA1F-47D7-ADD5-5B8A6DD54E54}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{B1D6F70C-BA1F-47D7-ADD5-5B8A6DD54E54}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{B1D6F70C-BA1F-47D7-ADD5-5B8A6DD54E54}.Debug|ARM.ActiveCfg = Debug|Any CPU
-		{B1D6F70C-BA1F-47D7-ADD5-5B8A6DD54E54}.Debug|x64.ActiveCfg = Debug|Any CPU
-		{B1D6F70C-BA1F-47D7-ADD5-5B8A6DD54E54}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{B1D6F70C-BA1F-47D7-ADD5-5B8A6DD54E54}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{B1D6F70C-BA1F-47D7-ADD5-5B8A6DD54E54}.Release|Any CPU.Build.0 = Release|Any CPU
-		{B1D6F70C-BA1F-47D7-ADD5-5B8A6DD54E54}.Release|ARM.ActiveCfg = Release|Any CPU
-		{B1D6F70C-BA1F-47D7-ADD5-5B8A6DD54E54}.Release|x64.ActiveCfg = Release|Any CPU
-		{B1D6F70C-BA1F-47D7-ADD5-5B8A6DD54E54}.Release|x86.ActiveCfg = Release|Any CPU
 		{86613033-837C-4DC1-8ACA-2EB3CFE3DCE5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{86613033-837C-4DC1-8ACA-2EB3CFE3DCE5}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{86613033-837C-4DC1-8ACA-2EB3CFE3DCE5}.Debug|ARM.ActiveCfg = Debug|Any CPU
@@ -120,7 +108,6 @@ Global
 		{2811EEA6-0C74-4897-AE9F-79BE05490FB8} = {B51CBB63-B68F-406C-ADF1-DFCB45D39614}
 		{80071C8C-8881-45B9-9F27-BABD3D0C2F6E} = {B51CBB63-B68F-406C-ADF1-DFCB45D39614}
 		{F4A28537-BFFF-4BFD-808E-26C30750DE8B} = {B51CBB63-B68F-406C-ADF1-DFCB45D39614}
-		{B1D6F70C-BA1F-47D7-ADD5-5B8A6DD54E54} = {B51CBB63-B68F-406C-ADF1-DFCB45D39614}
 		{86613033-837C-4DC1-8ACA-2EB3CFE3DCE5} = {B51CBB63-B68F-406C-ADF1-DFCB45D39614}
 	EndGlobalSection
 EndGlobal

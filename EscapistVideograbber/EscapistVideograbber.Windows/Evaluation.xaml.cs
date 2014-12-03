@@ -71,7 +71,7 @@ namespace EscapistVideograbber
             tokensource = new CancellationTokenSource();
             backButton.Click += backButton_Click;
             ProgBar.IsIndeterminate = true;
-            var resload = new ResourceLoader();
+            var resload = ResourceLoader.GetForCurrentView();
             StateLabel.Text = resload.GetString("StateLabel/HTMLParse");
             await Grabber.evaluateURL(Appstate.state.EnteredURL, Appstate.state.hq, ShowError, () =>
             {
@@ -81,7 +81,7 @@ namespace EscapistVideograbber
             {
                 //JSON parsed
                 StateLabel.Text = resload.GetString("StateLabel/DLStart");
-            }, FileChooser, new Downloadhelper(async (received, total) =>
+            }, FileChooser, new Downloadhelper((received, total) =>
             {
                 //Progress in the download was made
                 double progress = ((double) received/total)*100;
@@ -102,18 +102,19 @@ namespace EscapistVideograbber
                     Grabber.finishDL();
                     this.Frame.GoBack();
                 }*/
-            }, async (String filepath, bool wascancelled) =>
+            }, async (filepath, wascancelled) =>
             {
-//Finish is integrated into progress
+                //Finish is integrated into progress
                 if (wascancelled)
                     Frame.GoBack(); //TODO
                 else
                 {
                     if (Appstate.state.opendl)
+                        //await Launcher.LaunchUriAsync(new Uri("video:" + filepath));
                         await Launcher.LaunchFileAsync(await StorageFile.GetFileFromPathAsync(filepath));
                     else
                     {
-                        var dialog = new MessageDialog(String.Format(resload.GetString("dlfinish/text"),filepath),
+                        var dialog = new MessageDialog(String.Format(resload.GetString("dlfinish/text"), filepath),
                             resload.GetString("dlfinish/title"));
                         dialog.Commands.Add(new UICommand(resload.GetString("dlfinish/ok")));
                         await dialog.ShowAsync();
@@ -173,7 +174,7 @@ namespace EscapistVideograbber
         {
             var resload = new ResourceLoader();
             var msgdialog = new MessageDialog(e.ToString(), resload.GetString("errormsg/title"));
-            msgdialog.Commands.Add(new UICommand(resload.GetString("errormsg/ok"), (IUICommand command) =>
+            msgdialog.Commands.Add(new UICommand(resload.GetString("errormsg/ok"), command =>
             {
                 try
                 {

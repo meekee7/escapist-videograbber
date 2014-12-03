@@ -8,42 +8,65 @@
     mc:Ignorable="d"
     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
 
+    <Page.BottomAppBar>
+        <CommandBar ClosedDisplayMode="Minimal">
+            <CommandBar.SecondaryCommands>
+                <AppBarButton x:Uid="OverrideNOWIFIbtn" x:Name="OverrideNOWIFIbtn" Label="Override NOWIFI"
+                              Click="OverrideNOWIFIbtn_Click" />
+            </CommandBar.SecondaryCommands>
+        </CommandBar>
+    </Page.BottomAppBar>
+
     <Grid x:Name="LayoutRoot">
 
         <Grid.ChildrenTransitions>
             <TransitionCollection>
-                <EntranceThemeTransition/>
+                <EntranceThemeTransition />
             </TransitionCollection>
         </Grid.ChildrenTransitions>
 
         <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
         </Grid.RowDefinitions>
 
         <!-- Titelbereich -->
         <StackPanel Grid.Row="0" Margin="19,0,0,0">
-            <TextBlock x:Uid="AppNameBar" Text="MY APPLICATION" Style="{ThemeResource TitleTextBlockStyle}" Margin="0,12,0,0"/>
-            <TextBlock x:Uid="InputTitle" Text="page title" Margin="0,-6.5,0,26.5" Style="{ThemeResource HeaderTextBlockStyle}" CharacterSpacing="{ThemeResource PivotHeaderItemCharacterSpacing}"/>
+            <TextBlock x:Uid="AppNameBar" Text="MY APPLICATION" Style="{ThemeResource TitleTextBlockStyle}"
+                       Margin="0,12,0,0" />
+            <TextBlock x:Uid="InputTitle" Text="page title" Margin="0,-6.5,0,26.5"
+                       Style="{ThemeResource HeaderTextBlockStyle}"
+                       CharacterSpacing="{ThemeResource PivotHeaderItemCharacterSpacing}" />
         </StackPanel>
 
         <!--TODO: Inhalte sollten innerhalb des folgenden Rasters platziert werden,-->
         <Grid Grid.Row="1" x:Name="ContentRoot" Margin="19,9.5,19,0">
-            <StackPanel VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
-                <Grid>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition></ColumnDefinition>
-                    <ColumnDefinition Width="120"></ColumnDefinition>
-                    </Grid.ColumnDefinitions>
-                    <TextBox x:Uid="URLBox"  x:Name="URLBox" Header="URL hier eingeben" InputScope="Url" PlaceholderText="EnterURLHere" KeyDown="URLBox_KeyDown" Grid.Column="0"/>
-                    <Button x:Name="clearbtn" x:Uid="ClearBtn" Content="Clear" Grid.Column="1" VerticalAlignment="Bottom" HorizontalAlignment="Center" Click="clearbtn_Click"/>
-                </Grid>
-                <Button x:Uid="PasteCurrentZP" x:Name="InsertZPBtn" Content="InsertCurrentZP" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Click="InsertZPBtn_Click"/>
-                <CheckBox x:Name="OpenAfterDLCB" x:Uid="OpenAfterDLCheck" Content="Open" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
-                <CheckBox x:Name="HQCB" x:Uid="HQCheck" Content="HQ" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" IsChecked="True"/>
-                <CheckBox x:Name="AutosaveCB" x:Uid="AutosaveCheck" Content="Autosave" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" IsChecked="True"/>
-                <Button x:Uid="EvaluateURL" x:Name="StartBtn" Content="EvaluateURL" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Click="StartBtn_Click"/>
-            </StackPanel>
+            <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+                <StackPanel VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition />
+                            <ColumnDefinition Width="120" />
+                        </Grid.ColumnDefinitions>
+                        <TextBox x:Uid="URLBox" x:Name="URLBox" Header="URL hier eingeben" InputScope="Url"
+                                 PlaceholderText="EnterURLHere" KeyDown="URLBox_KeyDown" Grid.Column="0" />
+                        <Button x:Name="clearbtn" x:Uid="ClearBtn" Content="Clear" Grid.Column="1"
+                                VerticalAlignment="Bottom" HorizontalAlignment="Center" Click="clearbtn_Click" />
+                    </Grid>
+                    <Button x:Uid="PasteCurrentZP" x:Name="InsertZPBtn" Content="InsertCurrentZP"
+                            HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Click="InsertZPBtn_Click" />
+                    <CheckBox x:Name="OpenAfterDLCB" x:Uid="OpenAfterDLCheck" Content="Open"
+                              HorizontalAlignment="Stretch" VerticalAlignment="Stretch" />
+                    <CheckBox x:Name="HQCB" x:Uid="HQCheck" Content="HQ" HorizontalAlignment="Stretch"
+                              VerticalAlignment="Stretch" IsChecked="True" />
+                    <CheckBox x:Name="AutosaveCB" x:Uid="AutosaveCheck" Content="Autosave"
+                              HorizontalAlignment="Stretch" VerticalAlignment="Stretch" IsChecked="True" />
+                    <Button x:Uid="EvaluateURL" x:Name="StartBtn" Content="EvaluateURL" HorizontalAlignment="Stretch"
+                            VerticalAlignment="Stretch" Click="StartBtn_Click" />
+                    <Button x:Uid="ProbeZPBtn" x:Name="ProbeZpButton" Content="Probe" HorizontalAlignment="Stretch"
+                            VerticalAlignment="Stretch" Click="ProbeBtn_Click" />
+                </StackPanel>
+            </ScrollViewer>
         </Grid>
     </Grid>
 </Page>

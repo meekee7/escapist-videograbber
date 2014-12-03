@@ -99,7 +99,7 @@ namespace EscapistVideograbber
             {
                 //JSON parsed
                 StateLabel.Text = resload.GetString("StateLabel/DLStart");
-            }, FileChooser, new Downloadhelper(async (received, total) =>
+            }, FileChooser, new Downloadhelper((received, total) =>
             {
                 //Progress in the download was made
                 double progress = ((double) received/total)*100;
@@ -128,7 +128,10 @@ namespace EscapistVideograbber
                 else
                 {
                     if (Appstate.state.opendl)
+                    {
+                        //TODO see if there is a better way, maybe launch the video app directly
                         await Launcher.LaunchFileAsync(await StorageFile.GetFileFromPathAsync(filepath));
+                    }
                     else
                     {
                         var dialog = new MessageDialog(String.Format(resload.GetString("dlfinish/text"), filepath),
@@ -172,13 +175,12 @@ namespace EscapistVideograbber
                 return await CommHelp.getAutoFilePath(title);
             Task waitforresult = Task.Factory.StartNew(() => { signalevt.WaitOne(); });
 
-            Task choosertask = Task.Factory.StartNew(async () =>
+            await Task.Factory.StartNew(async () =>
             {
                 await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
                 {
-                    var resload = new ResourceLoader();
-                    var picker = new FileSavePicker();
-                    picker.DefaultFileExtension = ".mp4";
+                    var resload = ResourceLoader.GetForCurrentView();
+                    var picker = new FileSavePicker {DefaultFileExtension = ".mp4"};
                     picker.FileTypeChoices.Add(resload.GetString("FileChoiceMP4"), new List<String> {".mp4"});
                     picker.SuggestedFileName = title;
                     picker.SuggestedStartLocation = PickerLocationId.VideosLibrary;
@@ -223,7 +225,7 @@ namespace EscapistVideograbber
         {
             var resload = new ResourceLoader();
             var msgdialog = new MessageDialog(e.ToString(), resload.GetString("errormsg/title"));
-            msgdialog.Commands.Add(new UICommand(resload.GetString("errormsg/ok"), (IUICommand command) =>
+            msgdialog.Commands.Add(new UICommand(resload.GetString("errormsg/ok"), command =>
             {
                 try
                 {

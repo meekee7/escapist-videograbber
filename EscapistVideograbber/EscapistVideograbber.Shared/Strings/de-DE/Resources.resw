@@ -204,4 +204,28 @@
   <data name="ClearBtn.Content" xml:space="preserve">
     <value>Löschen</value>
   </data>
+  <data name="NoWIFImsg.Text" xml:space="preserve">
+    <value>Es liegt keine WLAN-Verbindung vor. Verwenden Sie die Override-Funktion um einmalig eine 3G-Verbindung zu verwenden.</value>
+  </data>
+  <data name="OverrideNOWIFIbtn.Label" xml:space="preserve">
+    <value>WLAN Override</value>
+  </data>
+  <data name="OverrideWIFImsg.no" xml:space="preserve">
+    <value>Nein</value>
+  </data>
+  <data name="OverrideWIFImsg.text" xml:space="preserve">
+    <value>Soll die Anforderung, nur WLAN-Verbindungen zu verwenden, einmalig übergangen werden?</value>
+  </data>
+  <data name="OverrideWIFImsg.title" xml:space="preserve">
+    <value>WLAN Override</value>
+  </data>
+  <data name="OverrideWIFImsg.yes" xml:space="preserve">
+    <value>Ja</value>
+  </data>
+  <data name="Probe.title" xml:space="preserve">
+    <value>Aktueller ZP-Titel</value>
+  </data>
+  <data name="ProbeZPBtn.Content" xml:space="preserve">
+    <value>Aktueller ZP-Titel</value>
+  </data>
 </root>

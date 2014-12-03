@@ -1,8 +1,11 @@
 ﻿//using Microsoft.Phone.Net.NetworkInformation;
+
 using System;
+using Windows.ApplicationModel.Resources;
 using Windows.Networking.Connectivity;
 using Windows.Phone.UI.Input;
 using Windows.System;
+using Windows.UI.Popups;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Input;
@@ -21,6 +24,8 @@ namespace EscapistVideograbber
     {
         private readonly ObservableDictionary defaultViewModel = new ObservableDictionary();
         private readonly NavigationHelper navigationHelper;
+
+        private bool overrideNOWIFI;
 
         public EnterURL()
         {
@@ -66,6 +71,7 @@ namespace EscapistVideograbber
                 URLBox.Text = Appstate.state.EnteredURL;
             OpenAfterDLCB.IsChecked = Appstate.state.opendl;
 
+            overrideNOWIFI = false;
             HardwareButtons.BackPressed += HardwareButtons_BackPressed;
         }
 
@@ -88,9 +94,9 @@ namespace EscapistVideograbber
         private void NavigationHelper_SaveState(object sender, SaveStateEventArgs e)
         {
             Appstate.state.EnteredURL = URLBox.Text;
-            Appstate.state.opendl = OpenAfterDLCB.IsChecked.HasValue ? OpenAfterDLCB.IsChecked.Value : false;
-            Appstate.state.hq = HQCB.IsChecked.HasValue ? HQCB.IsChecked.Value : false;
-            Appstate.state.autosave = AutosaveCB.IsChecked.HasValue ? AutosaveCB.IsChecked.Value : false;
+            Appstate.state.opendl = OpenAfterDLCB.IsChecked.HasValue && OpenAfterDLCB.IsChecked.Value;
+            Appstate.state.hq = HQCB.IsChecked.HasValue && HQCB.IsChecked.Value;
+            Appstate.state.autosave = AutosaveCB.IsChecked.HasValue && AutosaveCB.IsChecked.Value;
             HardwareButtons.BackPressed -= HardwareButtons_BackPressed;
         }
 
@@ -115,15 +121,26 @@ namespace EscapistVideograbber
         {
             //IFF the connection is not mobile, only wifi
             //if (DeviceNetworkInformation.IsWiFiEnabled && !DeviceNetworkInformation.IsCellularDataEnabled && DeviceNetworkInformation.IsNetworkAvailable)
-            if (!NetworkInformation.GetInternetConnectionProfile().IsWwanConnectionProfile)
+            if (overrideNOWIFI || !NetworkInformation.GetInternetConnectionProfile().IsWwanConnectionProfile)
                 Frame.Navigate(typeof(Evaluation));
             else
-                await CommHelp.showmessage("NOWIFI");
+                await CommHelp.showmessage(ResourceLoader.GetForCurrentView().GetString("NoWIFImsg/text"));
         }
 
         private void clearbtn_Click(object sender, RoutedEventArgs e)
         {
             URLBox.Text = String.Empty;
+        }
+
+        private async void OverrideNOWIFIbtn_Click(object sender, RoutedEventArgs e)
+        {
+            ResourceLoader resload = ResourceLoader.GetForCurrentView();
+            var msgdialog = new MessageDialog(resload.GetString("OverrideWIFImsg/text"), resload.GetString("OverrideWIFImsg/title"));
+            msgdialog.Commands.Add(new UICommand(resload.GetString("OverrideWIFImsg/yes"),
+                command => { overrideNOWIFI = true; }));
+            msgdialog.Commands.Add(new UICommand(resload.GetString("OverrideWIFImsg/no"),
+                command => { overrideNOWIFI = false; }));
+            await msgdialog.ShowAsync();
         }
 
         #region NavigationHelper-Registrierung
@@ -154,5 +171,10 @@ namespace EscapistVideograbber
         }
 
         #endregion
+
+        private async void ProbeBtn_Click(object sender, RoutedEventArgs e)
+        {
+            await CommHelp.showmessage(await Grabber.getLatestZPTitle(), ResourceLoader.GetForCurrentView().GetString("Probe/title"));
+        }
     }
 }

@@ -158,5 +158,10 @@ namespace DesktopGrabber
         {
             urlbox.Text = String.Empty;
         }
+
+        private async void probebtn_Click(object sender, RoutedEventArgs e)
+        {
+            MessageBox.Show(await Grabber.getLatestZPTitle(), "Current ZP Episode");
+        }
     }
 }

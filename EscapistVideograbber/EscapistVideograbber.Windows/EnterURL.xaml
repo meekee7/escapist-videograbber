@@ -50,6 +50,8 @@
         <Button x:Uid="PasteCurrentZP" x:Name="InsertZPBtn" Content="InsertCurrentZP" HorizontalAlignment="Left" Margin="150,155,0,0" Grid.Row="1" VerticalAlignment="Top" Width="309" Click="InsertZPBtn_Click"/>
         <Button x:Uid="PasteFromCb" x:Name="InsertClipBtn" Content="PasteCB" HorizontalAlignment="Left" Margin="150,208,0,0" Grid.Row="1" VerticalAlignment="Top" Width="309" Click="InsertClipBtn_Click"/>
         <Button x:Uid="EvaluateURL" x:Name="StartBtn" Content="EvaluateURL" HorizontalAlignment="Left" Margin="150,345,0,0" Grid.Row="1" VerticalAlignment="Top" Width="309" Click="StartBtn_Click"/>
+        <Button x:Uid="ProbeZPBtn" x:Name="ProbeZpButton" Content="Probe" HorizontalAlignment="Left" Margin="150,398,0,0" Grid.Row="1" Width="309"
+                            VerticalAlignment="Top" Click="ProbeBtn_Click" />
         <CheckBox x:Name="OpenAfterDLCB" x:Uid="OpenAfterDLCheck" Content="CheckBox" HorizontalAlignment="Left" Margin="225,250,0,0" Grid.Row="1" VerticalAlignment="Top"/>
         <CheckBox x:Name="HQCB" x:Uid="HQCheck" Content="CheckBox" HorizontalAlignment="Left" Margin="225,309,0,0" Grid.Row="1" VerticalAlignment="Top" Checked="HQCB_Checked" IsChecked="True"/>
         <CheckBox x:Name="AutosaveCB" x:Uid="AutosaveCheck" Content="CheckBox" HorizontalAlignment="Left" Margin="225,279,0,0" Grid.Row="1" VerticalAlignment="Top" Checked="HQCB_Checked" IsChecked="True"/>

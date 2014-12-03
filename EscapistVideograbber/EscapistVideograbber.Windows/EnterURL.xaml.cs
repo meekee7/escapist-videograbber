@@ -1,5 +1,6 @@
 ﻿using System;
 using Windows.ApplicationModel.DataTransfer;
+using Windows.ApplicationModel.Resources;
 using Windows.System;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
@@ -114,11 +115,16 @@ namespace EscapistVideograbber
 
         private void startdl()
         {
-            Frame.Navigate(typeof (Evaluation));
+            Frame.Navigate(typeof(Evaluation));
         }
 
         private void HQCB_Checked(object sender, RoutedEventArgs e)
         {
+        }
+
+        private async void ProbeBtn_Click(object sender, RoutedEventArgs e)
+        {
+            await CommHelp.showmessage(await Grabber.getLatestZPTitle(), ResourceLoader.GetForCurrentView().GetString("Probe/title"));
         }
 
         #region NavigationHelper-Registrierung

@@ -37,6 +37,11 @@ namespace GrabbingLib
             }*/
         }
 
+        public static async Task<String> getLatestZPTitle()
+        {
+            return (await getJSONURL(ZPLatestURL,true)).title;
+        }
+
         public static async Task evaluateURL(String videopage, bool hq, Func<Exception, Task> erroraction,
             Action htmlaction,
             Action jsonaction, Func<String, Task<String>> getFilePath, Downloader downloader, Func<String, Task> showmsg,

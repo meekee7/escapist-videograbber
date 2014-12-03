@@ -3,20 +3,34 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="Escapist Videograbber" Height="302" Width="280" Closing="Window_Closing">
     <Window.TaskbarItemInfo>
-        <TaskbarItemInfo x:Name="taskbar"/>
+        <TaskbarItemInfo x:Name="taskbar" />
     </Window.TaskbarItemInfo>
     <Grid>
-        <Label Content="Insert URL of Escapist video page here:" HorizontalAlignment="Left" Margin="10,4,0,0" VerticalAlignment="Top"/>
-        <TextBox Name="urlbox" HorizontalAlignment="Left" Height="23" Margin="10,32,0,0" TextWrapping="NoWrap" Text="" VerticalAlignment="Top" Width="89" KeyDown="urlbox_KeyDown"/>
-        <Button Name="clearbtn" Content="Clear" HorizontalAlignment="Left" Margin="104,35,0,0" VerticalAlignment="Top" Width="40" Click="clearbtn_Click"/>
-        <Button Name="latestzpbtn" Content="Insert latest ZP episode" HorizontalAlignment="Left" Margin="10,58,0,0" VerticalAlignment="Top" Width="135" Click="latestzpbtn_Click"/>
-        <Button Name="pastebtn" Content="Paste from Clipboard" HorizontalAlignment="Left" Margin="10,83,0,0" VerticalAlignment="Top" Width="135" Click="pastebtn_Click"/>
-        <CheckBox Name="openchkbox" Content="Open file after download" HorizontalAlignment="Left" Margin="10,148,0,0" VerticalAlignment="Top"/>
-        <CheckBox Name="hqchkbox" Content="HQ if possible" HorizontalAlignment="Left" Margin="10,128,0,0" VerticalAlignment="Top" IsChecked="True"/>
-        <CheckBox Name="autosavechkbox" Content="Save to Videos\Escapist" HorizontalAlignment="Left" Margin="10,108,0,0" VerticalAlignment="Top" IsChecked="True"/>
-        <Button Name="startbtn" Content="Start" HorizontalAlignment="Left" Margin="10,166,0,0" VerticalAlignment="Top" Width="135" Click="startcancelbtn_Click"/>
-        <Button Name="cancelbtn" Content="Cancel" HorizontalAlignment="Left" Margin="10,191,0,0" VerticalAlignment="Top" Width="135" IsEnabled="False" Click="cancelbtn_Click"/>
-        <ProgressBar Name="progbar" HorizontalAlignment="Stretch" Height="10" Margin="10,247,10,0" VerticalAlignment="Top" />
+        <Label Content="Insert URL of Escapist video page here:" HorizontalAlignment="Left" Margin="10,4,0,0"
+               VerticalAlignment="Top" />
+        <TextBox Name="urlbox" HorizontalAlignment="Left" Height="23" Margin="10,32,0,0" TextWrapping="NoWrap" Text=""
+                 VerticalAlignment="Top" Width="89" KeyDown="urlbox_KeyDown" />
+        <Button Name="clearbtn" Content="Clear" HorizontalAlignment="Left" Margin="104,35,0,0" VerticalAlignment="Top"
+                Width="40" Click="clearbtn_Click" />
+        <Button Name="latestzpbtn" Content="Insert latest ZP episode" HorizontalAlignment="Left" Margin="10,58,0,0"
+                VerticalAlignment="Top" Width="135" Click="latestzpbtn_Click" />
+        <Button Name="pastebtn" Content="Paste from Clipboard" HorizontalAlignment="Left" Margin="10,83,0,0"
+                VerticalAlignment="Top" Width="135" Click="pastebtn_Click" />
+        <CheckBox Name="openchkbox" Content="Open file after download" HorizontalAlignment="Left" Margin="10,148,0,0"
+                  VerticalAlignment="Top" />
+        <CheckBox Name="hqchkbox" Content="HQ if possible" HorizontalAlignment="Left" Margin="10,128,0,0"
+                  VerticalAlignment="Top" IsChecked="True" />
+        <CheckBox Name="autosavechkbox" Content="Save to Videos\Escapist" HorizontalAlignment="Left"
+                  Margin="10,108,0,0" VerticalAlignment="Top" IsChecked="True" />
+        <Button Name="startbtn" Content="Start" HorizontalAlignment="Left" Margin="10,166,0,0" VerticalAlignment="Top"
+                Width="135" Click="startcancelbtn_Click" />
+        <Button Name="cancelbtn" Content="Cancel" HorizontalAlignment="Left" Margin="10,191,0,0"
+                VerticalAlignment="Top" Width="135" IsEnabled="False" Click="cancelbtn_Click" />
+        <Button Name="probebtn" Content="Probe" HorizontalAlignment="Left" Margin="10,215,0,0" VerticalAlignment="Top"
+                Width="135" Click="probebtn_Click" />
+
+        <ProgressBar Name="progbar" HorizontalAlignment="Stretch" Height="10" Margin="10,247,10,0"
+                     VerticalAlignment="Top" />
         <Label Name="proglabel" Content="" HorizontalAlignment="Left" Margin="10,216,0,0" VerticalAlignment="Top" />
     </Grid>
 </Window>
