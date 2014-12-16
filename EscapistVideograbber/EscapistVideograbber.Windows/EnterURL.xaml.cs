@@ -65,6 +65,8 @@ namespace EscapistVideograbber
             if (Appstate.state.EnteredURL != null)
                 URLEnterBox.Text = Appstate.state.EnteredURL;
             OpenAfterDLCB.IsChecked = Appstate.state.opendl;
+            HQCB.IsChecked = Appstate.state.hq;
+            AutosaveCB.IsChecked = Appstate.state.autosave;
         }
 
         /// <summary>
@@ -103,18 +105,15 @@ namespace EscapistVideograbber
             startdl();
         }
 
-        private void CheckBox_Checked(object sender, RoutedEventArgs e)
-        {
-        }
-
         private void URLEnterBox_KeyDown(object sender, KeyRoutedEventArgs e)
-        {
+        { 
             if (e.Key == VirtualKey.Enter)
                 startdl();
         }
 
         private void startdl()
         {
+            Appstate.state.currentaction = new GrabVideo(this.URLEnterBox.Text, this.OpenAfterDLCB.IsChecked.GetValueOrDefault(), this.HQCB.IsChecked.GetValueOrDefault(), this.AutosaveCB.IsChecked.GetValueOrDefault());
             Frame.Navigate(typeof(Evaluation));
         }
 
@@ -122,9 +121,10 @@ namespace EscapistVideograbber
         {
         }
 
-        private async void ProbeBtn_Click(object sender, RoutedEventArgs e)
+        private void ProbeBtn_Click(object sender, RoutedEventArgs e)
         {
-            await CommHelp.showmessage(await Grabber.getLatestZPTitle(), ResourceLoader.GetForCurrentView().GetString("Probe/title"));
+            Appstate.state.currentaction = new GetLatestZP();
+            Frame.Navigate(typeof (Evaluation));
         }
 
         #region NavigationHelper-Registrierung

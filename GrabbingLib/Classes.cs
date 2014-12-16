@@ -30,16 +30,33 @@ namespace GrabbingLib
                 download.finishdl();
                 download = null;
             }
-            /*{
-                if (download.Progress.Status != BackgroundTransferStatus.Completed || download.Progress.Status != BackgroundTransferStatus.Error || download.Progress.Status != BackgroundTransferStatus.Canceled)
-                    download.AttachAsync().Cancel();
-                download = null;
-            }*/
+        }
+
+        public static async Task waitForNewZPEpisode(CancellationToken ctoken, Func<String, Task<bool>> confirmold,
+            Action<int> updateattempt, Action foundaction)
+        {
+            String url = ZPLatestURL;
+            String oldname = (await getJSONURL(url, false)).title;
+            if (await confirmold.Invoke(oldname) && !ctoken.IsCancellationRequested)
+            {
+                for (int attempt = 0;
+                    (await getJSONURL(url, false)).title.Equals(oldname) && !ctoken.IsCancellationRequested;
+                    attempt++)
+                    updateattempt.Invoke(attempt);
+
+                if (!ctoken.IsCancellationRequested)
+                {
+                    foundaction.Invoke();
+
+                    //TODO start download
+                }
+            }
         }
 
         public static async Task<String> getLatestZPTitle()
         {
-            return (await getJSONURL(ZPLatestURL,true)).title;
+            ParsingResult parsingresult = await getJSONURL(ZPLatestURL, false);
+            return parsingresult.error == null ? parsingresult.title : parsingresult.error.ToString();
         }
 
         public static async Task evaluateURL(String videopage, bool hq, Func<Exception, Task> erroraction,
@@ -144,7 +161,8 @@ namespace GrabbingLib
                 WebResponse response = await request.GetResponseAsync();
                 String jsontext = new StreamReader(response.GetResponseStream()).ReadToEnd();
 
-                JObject obj = JObject.Parse(jsontext); //Uses Newtonsoft.Json.Linq from the Json.Net package
+                JObject obj = JObject.Parse(jsontext);
+                    //Uses Newtonsoft.Json.Linq from the Json.Net package because Windows.Data.Json is only available on Windows (Phone) 8 and above
                 result.title = ScrubHtml(WebUtility.HtmlDecode((String) obj["plugins"]["viral"]["share"]["description"]));
                 result.URL =
                     (String)

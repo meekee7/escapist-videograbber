@@ -8,19 +8,48 @@ using GrabbingLib;
 
 namespace EscapistVideograbber
 {
+    internal abstract class UserAction
+    {
+    }
+
+    internal class GrabVideo : UserAction
+    {
+        public GrabVideo(string enteredURL, bool opendl, bool hq, bool autosave)
+        {
+            this.enteredURL = enteredURL;
+            this.opendl = opendl;
+            this.hq = hq;
+            this.autosave = autosave;
+        }
+
+        public String enteredURL { get; private set; }
+        public bool opendl { get; private set; }
+        public bool hq { get; private set; }
+        public bool autosave { get; private set; }
+    }
+
+    internal class GetLatestZP : UserAction
+    {
+    }
+
     internal class Appstate
     {
         public static readonly Appstate state = new Appstate();
 
         private Appstate()
         {
+            EnteredURL = String.Empty;
+            opendl = false;
+            hq = true;
+            autosave = true;
         }
+
+        public UserAction currentaction { get; set; }
 
         public String EnteredURL { get; set; }
         public bool opendl { get; set; }
         public bool hq { get; set; }
         public bool autosave { get; set; }
-        //public Windows.Storage.StorageFile file { get; set; }
     }
 
     internal class CommHelp
@@ -31,14 +60,21 @@ namespace EscapistVideograbber
 
         public static async Task showmessage(String message)
         {
-            await showmessage(message, "Hinweis");
+            await showmessage(message, "Hinweis"); //TODO get title from resources
         }
 
         public static async Task showmessage(String message, String title)
         {
-            var dialog = new MessageDialog(message, title);
-            dialog.Commands.Add(new UICommand("OK"));
-            await dialog.ShowAsync();
+            try
+            {
+                var dialog = new MessageDialog(message, title);
+                dialog.Commands.Add(new UICommand("OK")); //TODO get string from resources
+                await dialog.ShowAsync();
+            }
+            catch (Exception e)
+            {
+                e.ToString();
+            }
         }
 
         public static async Task<String> getAutoFilePath(String title)
@@ -51,6 +87,18 @@ namespace EscapistVideograbber
             StorageFile file = (await folder.GetFilesAsync()).FirstOrDefault(x => x.Name.Equals(filename)) ??
                                await folder.CreateFileAsync(filename);
             return file.Path;
+        }
+
+        internal class DisplayMessage
+        {
+            internal readonly String message;
+            internal readonly String title;
+
+            public DisplayMessage(string title, string message)
+            {
+                this.title = title;
+                this.message = message;
+            }
         }
     }
 
@@ -65,7 +113,7 @@ namespace EscapistVideograbber
 
         public override void finishdl()
         {
-            {
+            if (download != null) {
                 if (download.Progress.Status != BackgroundTransferStatus.Completed ||
                     download.Progress.Status != BackgroundTransferStatus.Error ||
                     download.Progress.Status != BackgroundTransferStatus.Canceled)
@@ -87,7 +135,7 @@ namespace EscapistVideograbber
                     ulong received = dlop.Progress.BytesReceived;
                     ulong total = dlop.Progress.TotalBytesToReceive;
                     updatehandler.Invoke(received, total);
-                    if (received == total)
+                    if (received == total) //BackgroundTransferStatus.Completed does not occur on its own, so we look at the numbers
                         finishhandler.Invoke(dlop.ResultFile.Path, false);
                 }));
             }
