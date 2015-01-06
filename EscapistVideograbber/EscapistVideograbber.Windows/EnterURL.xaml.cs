@@ -1,6 +1,5 @@
 ﻿using System;
 using Windows.ApplicationModel.DataTransfer;
-using Windows.ApplicationModel.Resources;
 using Windows.System;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
@@ -106,24 +105,28 @@ namespace EscapistVideograbber
         }
 
         private void URLEnterBox_KeyDown(object sender, KeyRoutedEventArgs e)
-        { 
+        {
             if (e.Key == VirtualKey.Enter)
                 startdl();
         }
 
         private void startdl()
         {
-            Appstate.state.currentaction = new GrabVideo(this.URLEnterBox.Text, this.OpenAfterDLCB.IsChecked.GetValueOrDefault(), this.HQCB.IsChecked.GetValueOrDefault(), this.AutosaveCB.IsChecked.GetValueOrDefault());
-            Frame.Navigate(typeof(Evaluation));
+            Appstate.state.currentaction = new GrabVideo(URLEnterBox.Text, OpenAfterDLCB.IsChecked.GetValueOrDefault(),
+                HQCB.IsChecked.GetValueOrDefault(), AutosaveCB.IsChecked.GetValueOrDefault());
+            Frame.Navigate(typeof (Evaluation));
         }
-
-        private void HQCB_Checked(object sender, RoutedEventArgs e)
-        {
-        }
-
+        
         private void ProbeBtn_Click(object sender, RoutedEventArgs e)
         {
             Appstate.state.currentaction = new GetLatestZP();
+            Frame.Navigate(typeof (Evaluation));
+        }
+
+        private void WaitZPBtn_Click(object sender, RoutedEventArgs e)
+        {
+            Appstate.state.currentaction = new WaitForNewZP(OpenAfterDLCB.IsChecked.GetValueOrDefault(),
+                AutosaveCB.IsChecked.GetValueOrDefault());
             Frame.Navigate(typeof (Evaluation));
         }
 

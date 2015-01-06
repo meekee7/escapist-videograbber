@@ -71,20 +71,77 @@ namespace EscapistVideograbber
             tokensource = new CancellationTokenSource();
             backButton.Click += backButton_Click;
             ProgBar.IsIndeterminate = true;
-            var useraction = Appstate.state.currentaction;
-            if (useraction.GetType() == typeof(GrabVideo)) //If this becomes bigger then turn this into a dictionary
+            UserAction useraction = Appstate.state.currentaction;
+            if (useraction.GetType() == typeof(GrabVideo)) //If this becomes too big then turn this into a dictionary
                 await rungrabber(useraction as GrabVideo);
             else if (useraction.GetType() == typeof(GetLatestZP))
                 await getvideotitle(useraction as GetLatestZP);
+            else if (useraction.GetType() == typeof(WaitForNewZP))
+                await waitfornewepisode(useraction as WaitForNewZP);
+        }
+
+        private async Task waitfornewepisode(WaitForNewZP taskarguments)
+        {
+            ResourceLoader resload = ResourceLoader.GetForCurrentView();
+            ProgBar.IsIndeterminate = true;
+            StateLabel.Text = resload.GetString("StateLabel/HTMLParse");
+            await Grabber.waitForNewZPEpisode(tokensource.Token, async title =>
+            {
+                var dialog = new MessageDialog(String.Format(resload.GetString("ConfirmTitle/Text"), title),
+                    resload.GetString("ConfirmTitle/Title"));
+                bool? dialogresult = null;
+                dialog.Commands.Add(new UICommand(resload.GetString("ConfirmTitle/Yes"),
+                    command => { dialogresult = true; }));
+                dialog.Commands.Add(new UICommand(resload.GetString("ConfirmTitle/No"),
+                    command => { dialogresult = false; }));
+                await dialog.ShowAsync();
+
+                return dialogresult.Value;
+            }, attempt =>
+            {
+                StateLabel.Text = String.Format(resload.GetString("StateLabel/Attempt"), attempt);
+            }, () =>
+            {
+                //No specific action
+            }, () => { StateLabel.Text = resload.GetString("StateLabel/HTMLDone"); },
+                () => { StateLabel.Text = resload.GetString("StateLabel/DLStart"); },
+                FileChooser(taskarguments.autosave), new Downloadhelper((received, total) =>
+                {
+                    //Progress in the download was made
+                    double progress = ((double) received / total) * 100;
+                    ProgBar.Value = progress;
+                    StateLabel.Text = resload.GetString("StateLabel/DLProg") + ' ' + (int) progress + " % ( "
+                                      + Grabber.ByteSize(received) + " / "
+                                      + Grabber.ByteSize(total) + " )";
+                }, async (filepath, wascancelled) =>
+                {
+                    Frame.GoBack();
+                    if (!wascancelled)
+                    {
+                        if (taskarguments.opendl)
+                            //await Launcher.LaunchUriAsync(new Uri(filepath));
+                            await Launcher.LaunchFileAsync(await StorageFile.GetFileFromPathAsync(filepath));
+                        else
+                            await
+                                CommHelp.showmessage(String.Format(resload.GetString("dlfinish/text"), filepath,
+                                    resload.GetString("dlfinish/title")));
+                        Grabber.finishDL();
+                    }
+                }), CommHelp.showmessage, () =>
+                {
+                    Grabber.finishDL();
+                    if (navigationHelper.CanGoBack())
+                        navigationHelper.GoBack();
+                }, ShowError);
         }
 
         private async Task getvideotitle(GetLatestZP taskarguments)
         {
-            var titletask = Grabber.getLatestZPTitle();
+            Task<string> titletask = Grabber.getLatestZPTitle();
             ProgBar.Value = 0;
             ProgBar.IsIndeterminate = true;
             StateLabel.Text = ResourceLoader.GetForCurrentView().GetString("StateLabel/HTMLParse");
-            var titlestring = await titletask;
+            string titlestring = await titletask;
             ProgBar.IsIndeterminate = false;
             if (!tokensource.IsCancellationRequested || tokensource.Token.IsCancellationRequested)
             {
@@ -96,7 +153,7 @@ namespace EscapistVideograbber
         private async Task rungrabber(GrabVideo taskarguments)
         {
             ProgBar.IsIndeterminate = true;
-            var resload = ResourceLoader.GetForCurrentView();
+            ResourceLoader resload = ResourceLoader.GetForCurrentView();
             StateLabel.Text = resload.GetString("StateLabel/HTMLParse");
             await Grabber.evaluateURL(taskarguments.enteredURL, taskarguments.hq, ShowError, () =>
             {
@@ -114,30 +171,14 @@ namespace EscapistVideograbber
                 StateLabel.Text = resload.GetString("StateLabel/DLProg") + ' ' + (int) progress + " % ( "
                                   + Grabber.ByteSize(received) + " / "
                                   + Grabber.ByteSize(total) + " )";
-                /*if (received == total)
-                {
-                    if (Appstate.state.opendl)
-                        await Windows.System.Launcher.LaunchFileAsync(await Windows.Storage.StorageFile.GetFileFromPathAsync(""));
-                    else
-                    {
-                        MessageDialog dialog = new MessageDialog(resload.GetString("dlfinish/text"), resload.GetString("dlfinish/title"));
-                        dialog.Commands.Add(new UICommand(resload.GetString("dlfinish/ok")));
-                        await dialog.ShowAsync();
-                    }
-                    Grabber.finishDL();
-                    this.Frame.GoBack();
-                }*/
             }, async (filepath, wascancelled) =>
             {
-                //Finish is integrated into progress
-                if (wascancelled)
-                    Frame.GoBack(); //TODO
-                else
+                Frame.GoBack();
+                if (!wascancelled)
                 {
                     if (taskarguments.opendl)
-                        await Launcher.LaunchUriAsync(new Uri(filepath));
-                        //await Launcher.LaunchUriAsync(new Uri("video:" + filepath));
-                        //await Launcher.LaunchFileAsync(await StorageFile.GetFileFromPathAsync(filepath));
+                        //await Launcher.LaunchUriAsync(new Uri(filepath));
+                        await Launcher.LaunchFileAsync(await StorageFile.GetFileFromPathAsync(filepath));
                     else
                     {
                         var dialog = new MessageDialog(String.Format(resload.GetString("dlfinish/text"), filepath),
@@ -181,48 +222,30 @@ namespace EscapistVideograbber
         }
 
         private Func<String, Task<String>> FileChooser(bool autosave)
-        { //Technically this is a case for currying, but it looks like it would make this more complicated than necessary
+        {
+            //Technically this is a case for currying, but it looks like it would make this more complicated than necessary
             return async title =>
             {
                 if (autosave)
                     return await CommHelp.getAutoFilePath(title);
-                var resload = ResourceLoader.GetForCurrentView();
+                ResourceLoader resload = ResourceLoader.GetForCurrentView();
                 var picker = new FileSavePicker
                 {
                     DefaultFileExtension = ".mp4",
                     SuggestedFileName = title,
                     SuggestedStartLocation = PickerLocationId.VideosLibrary
                 };
-                picker.FileTypeChoices.Add(resload.GetString("FileChoiceMP4"), new List<String> {".mp4"});
-                var file = await picker.PickSaveFileAsync();
+                picker.FileTypeChoices.Add(resload.GetString("FileChoiceMP4"), new List<String> { ".mp4" });
+                StorageFile file = await picker.PickSaveFileAsync();
                 return file != null ? file.Path : null;
             };
         }
 
         private async Task ShowError(Exception e)
         {
-            var resload = ResourceLoader.GetForCurrentView();
-            var msgdialog = new MessageDialog(e.ToString(), resload.GetString("errormsg/title"));
-            msgdialog.Commands.Add(new UICommand(resload.GetString("errormsg/ok"), command =>
-            {
-                try
-                {
-                    Frame.GoBack();
-                }
-                catch (Exception)
-                {
-                }
-            }));
-            await msgdialog.ShowAsync();
+            await CommHelp.showmessage(e.ToString(), ResourceLoader.GetForCurrentView().GetString("errormsg/title"));
+            Frame.GoBack();
         }
-
-        /*private async Task showmsg(String msg)
-        { //TODO replace with commhelp
-            var resload = ResourceLoader.GetForCurrentView();
-            var dialog = new MessageDialog(msg, "ShowMSG");
-            dialog.Commands.Add(new UICommand(resload.GetString("dlfinish/ok")));
-            await dialog.ShowAsync();
-        }*/
 
         #region NavigationHelper-Registrierung
 

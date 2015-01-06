@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Threading.Tasks;
+using Windows.ApplicationModel.Resources;
 using Windows.Networking.BackgroundTransfer;
 using Windows.Storage;
 using Windows.UI.Popups;
@@ -32,6 +33,14 @@ namespace EscapistVideograbber
     {
     }
 
+    internal class WaitForNewZP : GrabVideo
+    {
+        public WaitForNewZP(bool opendl, bool autosave)
+            : base(Grabber.ZPLatestURL, opendl, false, autosave)
+        {
+        }
+    }
+
     internal class Appstate
     {
         public static readonly Appstate state = new Appstate();
@@ -60,7 +69,7 @@ namespace EscapistVideograbber
 
         public static async Task showmessage(String message)
         {
-            await showmessage(message, "Hinweis"); //TODO get title from resources
+            await showmessage(message, ResourceLoader.GetForCurrentView().GetString("msg/DefaultTitle"));
         }
 
         public static async Task showmessage(String message, String title)
@@ -68,7 +77,7 @@ namespace EscapistVideograbber
             try
             {
                 var dialog = new MessageDialog(message, title);
-                dialog.Commands.Add(new UICommand("OK")); //TODO get string from resources
+                dialog.Commands.Add(new UICommand(ResourceLoader.GetForCurrentView().GetString("msg/OK")));
                 await dialog.ShowAsync();
             }
             catch (Exception e)
@@ -113,7 +122,8 @@ namespace EscapistVideograbber
 
         public override void finishdl()
         {
-            if (download != null) {
+            if (download != null)
+            {
                 if (download.Progress.Status != BackgroundTransferStatus.Completed ||
                     download.Progress.Status != BackgroundTransferStatus.Error ||
                     download.Progress.Status != BackgroundTransferStatus.Canceled)
@@ -127,18 +137,18 @@ namespace EscapistVideograbber
 
         public override async void startdownload(string sourceuri, string targeturi)
         {
+            StorageFile file = await StorageFile.GetFileFromPathAsync(targeturi);
+            download = new BackgroundDownloader().CreateDownload(new Uri(sourceuri), file);
+            //We do not await here, this would lead to exepctions when the download is cancelled
+            download.StartAsync().AsTask(new Progress<DownloadOperation>(dlop =>
             {
-                StorageFile file = await StorageFile.GetFileFromPathAsync(targeturi);
-                download = new BackgroundDownloader().CreateDownload(new Uri(sourceuri), file);
-                await download.StartAsync().AsTask(new Progress<DownloadOperation>(dlop =>
-                {
-                    ulong received = dlop.Progress.BytesReceived;
-                    ulong total = dlop.Progress.TotalBytesToReceive;
-                    updatehandler.Invoke(received, total);
-                    if (received == total) //BackgroundTransferStatus.Completed does not occur on its own, so we look at the numbers
-                        finishhandler.Invoke(dlop.ResultFile.Path, false);
-                }));
-            }
+                ulong received = dlop.Progress.BytesReceived;
+                ulong total = dlop.Progress.TotalBytesToReceive;
+                updatehandler.Invoke(received, total);
+                if (received == total)
+                    //BackgroundTransferStatus.Completed does not occur during progress or as an event, so we look at the numbers
+                    finishhandler.Invoke(dlop.ResultFile.Path, false);
+            }));
         }
     }
 }

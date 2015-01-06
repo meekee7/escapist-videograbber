@@ -14,6 +14,14 @@
         <!-- TODO: Delete this line if the key AppName is declared in App.xaml -->
         <x:String x:Key="AppName">My Application</x:String>
     </Page.Resources>
+    <Page.BottomAppBar>
+        <CommandBar>
+            <!--<Button x:Uid="refreshbtn" x:Name="RefreshBtn" Content="Refresh" HorizontalAlignment="Stretch" Grid.Row="1" VerticalAlignment="Stretch" Click="RefreshBtn_Click"/>
+            <Button x:Uid="websitebtn" x:Name="WebsiteBtn" Content="Visit RSI" HorizontalAlignment="Stretch" Grid.Row="1" VerticalAlignment="Stretch" Click="WebsiteBtn_Click"/>
+            <Button x:Uid="configbtn" x:Name="ConfigBtn" Content="Config" HorizontalAlignment="Stretch" Grid.Row="1" VerticalAlignment="Stretch" Click="ConfigBtn_Click"/>-->
+            <AppBarButton x:Uid="waitZPbtn" x:Name="WaitZPBtn" Icon="Globe" Label="WaitZP" Click="WaitZPBtn_Click" />
+        </CommandBar>
+    </Page.BottomAppBar>
 
     <!--
         This grid acts as a root panel for the page that defines two rows:
@@ -23,37 +31,48 @@
     <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
         <Grid.ChildrenTransitions>
             <TransitionCollection>
-                <EntranceThemeTransition/>
+                <EntranceThemeTransition />
             </TransitionCollection>
         </Grid.ChildrenTransitions>
         <Grid.RowDefinitions>
-            <RowDefinition Height="140"/>
-            <RowDefinition Height="*"/>
+            <RowDefinition Height="140" />
+            <RowDefinition Height="*" />
         </Grid.RowDefinitions>
 
         <!-- Back button and page title -->
         <Grid>
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="120"/>
-                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="120" />
+                <ColumnDefinition Width="*" />
             </Grid.ColumnDefinitions>
-            <Button x:Name="backButton" Margin="39,59,39,0" Command="{Binding NavigationHelper.GoBackCommand, ElementName=pageRoot}"
-                        Style="{StaticResource NavigationBackButtonNormalStyle}"
-                        VerticalAlignment="Top"
-                        AutomationProperties.Name="Back"
-                        AutomationProperties.AutomationId="BackButton"
-                        AutomationProperties.ItemType="Navigation Button"/>
-            <TextBlock x:Uid="AppNameBar" x:Name="pageTitle" Text="{StaticResource AppName}" Style="{StaticResource HeaderTextBlockStyle}" Grid.Column="1" 
-                        IsHitTestVisible="false" TextWrapping="NoWrap" VerticalAlignment="Bottom" Margin="0,0,30,40"/>
+            <Button x:Name="backButton" Margin="39,59,39,0"
+                    Command="{Binding NavigationHelper.GoBackCommand, ElementName=pageRoot}"
+                    Style="{StaticResource NavigationBackButtonNormalStyle}"
+                    VerticalAlignment="Top"
+                    AutomationProperties.Name="Back"
+                    AutomationProperties.AutomationId="BackButton"
+                    AutomationProperties.ItemType="Navigation Button" />
+            <TextBlock x:Uid="AppNameBar" x:Name="pageTitle" Text="{StaticResource AppName}"
+                       Style="{StaticResource HeaderTextBlockStyle}" Grid.Column="1"
+                       IsHitTestVisible="false" TextWrapping="NoWrap" VerticalAlignment="Bottom" Margin="0,0,30,40" />
         </Grid>
-        <TextBox x:Uid="URLBox" x:Name="URLEnterBox" Header="EnterURLHere" HorizontalAlignment="Left" Margin="153,76,0,0" Grid.Row="1" VerticalAlignment="Top" Width="303" InputScope="Url" PlaceholderText="URLWriteHere" KeyDown="URLEnterBox_KeyDown"/>
-        <Button x:Uid="PasteCurrentZP" x:Name="InsertZPBtn" Content="InsertCurrentZP" HorizontalAlignment="Left" Margin="150,155,0,0" Grid.Row="1" VerticalAlignment="Top" Width="309" Click="InsertZPBtn_Click"/>
-        <Button x:Uid="PasteFromCb" x:Name="InsertClipBtn" Content="PasteCB" HorizontalAlignment="Left" Margin="150,208,0,0" Grid.Row="1" VerticalAlignment="Top" Width="309" Click="InsertClipBtn_Click"/>
-        <Button x:Uid="EvaluateURL" x:Name="StartBtn" Content="EvaluateURL" HorizontalAlignment="Left" Margin="150,345,0,0" Grid.Row="1" VerticalAlignment="Top" Width="309" Click="StartBtn_Click"/>
-        <Button x:Uid="ProbeZPBtn" x:Name="ProbeZpButton" Content="Probe" HorizontalAlignment="Left" Margin="150,398,0,0" Grid.Row="1" Width="309"
-                            VerticalAlignment="Top" Click="ProbeBtn_Click" />
-        <CheckBox x:Name="OpenAfterDLCB" x:Uid="OpenAfterDLCheck" Content="CheckBox" HorizontalAlignment="Left" Margin="225,250,0,0" Grid.Row="1" VerticalAlignment="Top"/>
-        <CheckBox x:Name="HQCB" x:Uid="HQCheck" Content="CheckBox" HorizontalAlignment="Left" Margin="225,309,0,0" Grid.Row="1" VerticalAlignment="Top" Checked="HQCB_Checked" IsChecked="True"/>
-        <CheckBox x:Name="AutosaveCB" x:Uid="AutosaveCheck" Content="CheckBox" HorizontalAlignment="Left" Margin="225,279,0,0" Grid.Row="1" VerticalAlignment="Top" Checked="HQCB_Checked" IsChecked="True"/>
+        <TextBox x:Uid="URLBox" x:Name="URLEnterBox" Header="EnterURLHere" HorizontalAlignment="Left"
+                 Margin="153,76,0,0" Grid.Row="1" VerticalAlignment="Top" Width="303" InputScope="Url"
+                 PlaceholderText="URLWriteHere" KeyDown="URLEnterBox_KeyDown" />
+        <Button x:Uid="PasteCurrentZP" x:Name="InsertZPBtn" Content="InsertCurrentZP" HorizontalAlignment="Left"
+                Margin="150,155,0,0" Grid.Row="1" VerticalAlignment="Top" Width="309" Click="InsertZPBtn_Click" />
+        <Button x:Uid="PasteFromCb" x:Name="InsertClipBtn" Content="PasteCB" HorizontalAlignment="Left"
+                Margin="150,208,0,0" Grid.Row="1" VerticalAlignment="Top" Width="309" Click="InsertClipBtn_Click" />
+        <Button x:Uid="EvaluateURL" x:Name="StartBtn" Content="EvaluateURL" HorizontalAlignment="Left"
+                Margin="150,345,0,0" Grid.Row="1" VerticalAlignment="Top" Width="309" Click="StartBtn_Click" />
+        <Button x:Uid="ProbeZPBtn" x:Name="ProbeZpButton" Content="Probe" HorizontalAlignment="Left"
+                Margin="150,398,0,0" Grid.Row="1" Width="309"
+                VerticalAlignment="Top" Click="ProbeBtn_Click" />
+        <CheckBox x:Name="OpenAfterDLCB" x:Uid="OpenAfterDLCheck" Content="CheckBox" HorizontalAlignment="Left"
+                  Margin="225,250,0,0" Grid.Row="1" VerticalAlignment="Top" />
+        <CheckBox x:Name="HQCB" x:Uid="HQCheck" Content="CheckBox" HorizontalAlignment="Left" Margin="225,309,0,0"
+                  Grid.Row="1" VerticalAlignment="Top" IsChecked="True" />
+        <CheckBox x:Name="AutosaveCB" x:Uid="AutosaveCheck" Content="CheckBox" HorizontalAlignment="Left"
+                  Margin="225,279,0,0" Grid.Row="1" VerticalAlignment="Top" IsChecked="True" />
     </Grid>
 </Page>

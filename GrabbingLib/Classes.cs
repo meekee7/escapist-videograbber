@@ -33,24 +33,39 @@ namespace GrabbingLib
         }
 
         public static async Task waitForNewZPEpisode(CancellationToken ctoken, Func<String, Task<bool>> confirmold,
-            Action<int> updateattempt, Action foundaction)
+            Action<int> updateattempt, Action foundaction, Action htmlaction,
+            Action jsonaction, Func<String, Task<String>> getFilePath, Downloader downloader, Func<String, Task> showmsg,
+            Action canceltask, Func<Exception, Task> erroraction)
         {
             String url = ZPLatestURL;
             String oldname = (await getJSONURL(url, false)).title;
-            if (await confirmold.Invoke(oldname) && !ctoken.IsCancellationRequested)
+            if (!ctoken.IsCancellationRequested && await confirmold.Invoke(oldname))
             {
-                for (int attempt = 0;
-                    (await getJSONURL(url, false)).title.Equals(oldname) && !ctoken.IsCancellationRequested;
+                int maximum = 20;
+                int attempt;
+                for (attempt = 1;
+                    (await getJSONURL(url, false)).title.Equals(oldname) && !ctoken.IsCancellationRequested &&
+                    attempt < maximum;
                     attempt++)
+                {
                     updateattempt.Invoke(attempt);
+                    await Task.Delay(1000, ctoken);
+                }
+                if (attempt == maximum)
+                    erroraction.Invoke(new OverflowException()); //TODO overflowexception is for arithmetic, what do we use?
 
                 if (!ctoken.IsCancellationRequested)
                 {
                     foundaction.Invoke();
-
-                    //TODO start download
+                    await
+                        evaluateURL(ZPLatestURL, false, erroraction, htmlaction, jsonaction, getFilePath, downloader,
+                            showmsg, canceltask, ctoken);
                 }
+                else
+                    canceltask.Invoke();
             }
+            else
+                canceltask.Invoke();
         }
 
         public static async Task<String> getLatestZPTitle()
@@ -59,6 +74,7 @@ namespace GrabbingLib
             return parsingresult.error == null ? parsingresult.title : parsingresult.error.ToString();
         }
 
+        //showmsg is for debugging
         public static async Task evaluateURL(String videopage, bool hq, Func<Exception, Task> erroraction,
             Action htmlaction,
             Action jsonaction, Func<String, Task<String>> getFilePath, Downloader downloader, Func<String, Task> showmsg,
@@ -118,6 +134,7 @@ namespace GrabbingLib
             try
             {
                 WebRequest request = WebRequest.CreateHttp(videopage);
+                request.Headers[HttpRequestHeader.IfModifiedSince] = DateTime.UtcNow.ToString();
                 request.Credentials = CredentialCache.DefaultCredentials;
                 WebResponse response = await request.GetResponseAsync();
 
@@ -162,7 +179,7 @@ namespace GrabbingLib
                 String jsontext = new StreamReader(response.GetResponseStream()).ReadToEnd();
 
                 JObject obj = JObject.Parse(jsontext);
-                    //Uses Newtonsoft.Json.Linq from the Json.Net package because Windows.Data.Json is only available on Windows (Phone) 8 and above
+                //Uses Newtonsoft.Json.Linq from the Json.Net package because Windows.Data.Json is only available on Windows (Phone) 8 and above
                 result.title = ScrubHtml(WebUtility.HtmlDecode((String) obj["plugins"]["viral"]["share"]["description"]));
                 result.URL =
                     (String)
@@ -188,7 +205,7 @@ namespace GrabbingLib
         }
 
         private static string ScrubHtml(string value)
-            //Borrowed from Stackoverflow http://stackoverflow.com/questions/19523913/remove-html-tags-from-string-including-nbsp-in-c-sharp
+        //Borrowed from Stackoverflow http://stackoverflow.com/questions/19523913/remove-html-tags-from-string-including-nbsp-in-c-sharp
         {
             String step1 = Regex.Replace(value, @"<[^>]+>|&nbsp;", "").Trim();
             String step2 = Regex.Replace(step1, @"\s{2,}", " ");
@@ -196,9 +213,9 @@ namespace GrabbingLib
         }
 
         public static string ByteSize(ulong size)
-            //Borrowed from Stackoverflow http://stackoverflow.com/questions/281640/how-do-i-get-a-human-readable-file-size-in-bytes-abbreviation-using-net
+        //Borrowed from Stackoverflow http://stackoverflow.com/questions/281640/how-do-i-get-a-human-readable-file-size-in-bytes-abbreviation-using-net
         {
-            string[] sizeSuffixes = {"B", "KB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB"};
+            string[] sizeSuffixes = { "B", "KB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB" };
             string formatTemplate = "{0}{1:0.#} {2}";
 
             if (size == 0)
@@ -208,7 +225,7 @@ namespace GrabbingLib
             double fpPower = Math.Log(absSize, 1000);
             var intPower = (int) fpPower;
             int iUnit = intPower >= sizeSuffixes.Length ? sizeSuffixes.Length - 1 : intPower;
-            double normSize = absSize/Math.Pow(1000, iUnit);
+            double normSize = absSize / Math.Pow(1000, iUnit);
 
             return string.Format(formatTemplate, size < 0 ? "-" : null, normSize, sizeSuffixes[iUnit]);
         }

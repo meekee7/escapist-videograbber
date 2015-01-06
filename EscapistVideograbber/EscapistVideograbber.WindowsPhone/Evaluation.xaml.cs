@@ -133,6 +133,8 @@ namespace EscapistVideograbber
             {
                 //Finish is integrated into progress
                 //if (wascancelled)
+                if (Frame.CanGoBack)
+                    Frame.GoBack();
                 //navigationHelper.GoBack(); 
                 if (!wascancelled)
                 {
