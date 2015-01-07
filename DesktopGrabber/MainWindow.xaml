@@ -27,10 +27,12 @@
         <Button Name="cancelbtn" Content="Cancel" HorizontalAlignment="Left" Margin="10,191,0,0"
                 VerticalAlignment="Top" Width="135" IsEnabled="False" Click="cancelbtn_Click" />
         <Button Name="probebtn" Content="Probe" HorizontalAlignment="Left" Margin="10,216,0,0" VerticalAlignment="Top"
-                Width="135" Click="probebtn_Click" />
+                Width="60" Click="probebtn_Click" />
 
         <ProgressBar Name="progbar" HorizontalAlignment="Stretch" Height="10" Margin="10,279,10,0"
                      VerticalAlignment="Top" />
         <Label Name="proglabel" Content="" HorizontalAlignment="Left" Margin="10,248,0,0" VerticalAlignment="Top" />
+        <Button x:Name="awaitbtn" Content="Await" HorizontalAlignment="Left" Margin="84,216,0,0" VerticalAlignment="Top"
+        	Width="60" Click="awaitbtn_Click" />
     </Grid>
 </Window>

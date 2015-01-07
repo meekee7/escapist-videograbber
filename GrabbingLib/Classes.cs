@@ -41,29 +41,35 @@ namespace GrabbingLib
             String oldname = (await getJSONURL(url, false)).title;
             if (!ctoken.IsCancellationRequested && await confirmold.Invoke(oldname))
             {
-                int maximum = 1500;
+                int maximum = 600;
                 int attempt;
-                for (attempt = 1;
-                    (await getJSONURL(url, true)).title.Equals(oldname) && !ctoken.IsCancellationRequested &&
-                    attempt < maximum;
-                    attempt++)
-                {
-                    updateattempt.Invoke(attempt);
-                    await Task.Delay(1000, ctoken);
-                }
-                if (attempt == maximum)
-                    erroraction.Invoke(new OverflowException());
-                        //TODO overflowexception is for arithmetic, what do we use?
+                    for (attempt = 1;
+                        (await getJSONURL(url, true)).title.Equals(oldname) && !ctoken.IsCancellationRequested &&
+                        attempt < maximum;
+                        attempt++)
+                    {
+                        updateattempt.Invoke(attempt);
+                        try
+                        {
+                            await Task.Delay(1000, ctoken);
+                        }
+                        catch (TaskCanceledException)
+                        { //Already handled a few lines later
+                        }
+                    }
+                    if (attempt == maximum)
+                        await erroraction.Invoke(new OverflowException());
+                    //TODO overflowexception is for arithmetic, what do we use?
 
-                if (!ctoken.IsCancellationRequested)
-                {
-                    foundaction.Invoke();
-                    await
-                        evaluateURL(ZPLatestURL, true, erroraction, htmlaction, jsonaction, getFilePath, downloader,
-                            showmsg, canceltask, ctoken);
-                }
-                else
-                    canceltask.Invoke();
+                    if (!ctoken.IsCancellationRequested)
+                    {
+                        foundaction.Invoke();
+                        await
+                            evaluateURL(ZPLatestURL, true, erroraction, htmlaction, jsonaction, getFilePath, downloader,
+                                showmsg, canceltask, ctoken);
+                    }
+                    else
+                        canceltask.Invoke();
             }
             else
                 canceltask.Invoke();
