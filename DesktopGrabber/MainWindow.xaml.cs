@@ -142,11 +142,11 @@ namespace DesktopGrabber
                     () => { proglabel.Content = "Starting video download"; }, FileChooser,
                     new Downloadhelper((received, total) =>
                     {
-                        double progress = ((double) received/total)*100;
+                        double progress = ((double) received / total) * 100;
                         progbar.Value = progress;
                         progbar.IsIndeterminate = false;
                         taskbar.ProgressState = TaskbarItemProgressState.Normal;
-                        taskbar.ProgressValue = progress/100.0;
+                        taskbar.ProgressValue = progress / 100.0;
                         proglabel.Content = "Download running - " + (int) progress + " % ( "
                                             + Grabber.ByteSize(received) + " / "
                                             + Grabber.ByteSize(total) + " )";
@@ -189,19 +189,21 @@ namespace DesktopGrabber
             await
                 Grabber.waitForNewZPEpisode(tokensource.Token,
                     async oldtitle => MessageBox.Show("Please confirm that this is the old episode: " + oldtitle,
-                        "Confirm old episode", MessageBoxButton.YesNo) == MessageBoxResult.Yes,
+                        "Confirm old episode", MessageBoxButton.YesNo) == MessageBoxResult.Yes, async () =>
+                            await showmessage("Timeout: maximum number of attempts reached"),
                     attempt => { proglabel.Content = "Attempt: " + attempt; }, () =>
                     {
                         //No specific action
-                    }, () => { proglabel.Content = "Loading video data"; },
+                    },
+                    () => { proglabel.Content = "Loading video data"; },
                     () => { proglabel.Content = "Starting video download"; }, FileChooser,
                     new Downloadhelper((received, total) =>
                     {
-                        double progress = ((double) received/total)*100;
+                        double progress = ((double) received / total) * 100;
                         progbar.Value = progress;
                         progbar.IsIndeterminate = false;
                         taskbar.ProgressState = TaskbarItemProgressState.Normal;
-                        taskbar.ProgressValue = progress/100.0;
+                        taskbar.ProgressValue = progress / 100.0;
                         proglabel.Content = "Download running - " + (int) progress + " % ( "
                                             + Grabber.ByteSize(received) + " / "
                                             + Grabber.ByteSize(total) + " )";

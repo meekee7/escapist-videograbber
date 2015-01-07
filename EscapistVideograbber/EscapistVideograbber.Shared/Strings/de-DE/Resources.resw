@@ -246,4 +246,7 @@
   <data name="StateLabel.Attempt" xml:space="preserve">
     <value>Versuch {0}</value>
   </data>
+  <data name="TimeoutMsg" xml:space="preserve">
+    <value>Timeout: Die maximale Anzahl an Versuchen wurde erreicht.</value>
+  </data>
 </root>

@@ -97,7 +97,7 @@ namespace EscapistVideograbber
                 await dialog.ShowAsync();
 
                 return dialogresult.Value;
-            }, attempt =>
+            }, async () => await CommHelp.showmessage(resload.GetString("TimeoutMsg")),attempt =>
             {
                 StateLabel.Text = String.Format(resload.GetString("StateLabel/Attempt"), attempt);
             }, () =>

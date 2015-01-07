@@ -33,7 +33,7 @@ namespace GrabbingLib
         }
 
         public static async Task waitForNewZPEpisode(CancellationToken ctoken, Func<String, Task<bool>> confirmold,
-            Action<int> updateattempt, Action foundaction, Action htmlaction,
+            Func<Task> timeoutaction, Action<int> updateattempt, Action foundaction, Action htmlaction,
             Action jsonaction, Func<String, Task<String>> getFilePath, Downloader downloader, Func<String, Task> showmsg,
             Action canceltask, Func<Exception, Task> erroraction)
         {
@@ -43,33 +43,34 @@ namespace GrabbingLib
             {
                 int maximum = 600;
                 int attempt;
-                    for (attempt = 1;
-                        (await getJSONURL(url, true)).title.Equals(oldname) && !ctoken.IsCancellationRequested &&
-                        attempt < maximum;
-                        attempt++)
+                for (attempt = 1;
+                    (await getJSONURL(url, true)).title.Equals(oldname) && !ctoken.IsCancellationRequested &&
+                    attempt < maximum;
+                    attempt++)
+                {
+                    updateattempt.Invoke(attempt);
+                    try
                     {
-                        updateattempt.Invoke(attempt);
-                        try
-                        {
-                            await Task.Delay(1000, ctoken);
-                        }
-                        catch (TaskCanceledException)
-                        { //Already handled a few lines later
-                        }
+                        await Task.Delay(1000, ctoken);
                     }
-                    if (attempt == maximum)
-                        await erroraction.Invoke(new OverflowException());
+                    catch (TaskCanceledException)
+                    {
+                        //Already handled a few lines later
+                    }
+                }
+                if (attempt == maximum)
+                    await timeoutaction.Invoke();
                     //TODO overflowexception is for arithmetic, what do we use?
 
-                    if (!ctoken.IsCancellationRequested)
-                    {
-                        foundaction.Invoke();
-                        await
-                            evaluateURL(ZPLatestURL, true, erroraction, htmlaction, jsonaction, getFilePath, downloader,
-                                showmsg, canceltask, ctoken);
-                    }
-                    else
-                        canceltask.Invoke();
+                else if (!ctoken.IsCancellationRequested)
+                {
+                    foundaction.Invoke();
+                    await
+                        evaluateURL(ZPLatestURL, true, erroraction, htmlaction, jsonaction, getFilePath, downloader,
+                            showmsg, canceltask, ctoken);
+                }
+                else
+                    canceltask.Invoke();
             }
             else
                 canceltask.Invoke();
@@ -212,7 +213,7 @@ namespace GrabbingLib
         }
 
         private static string ScrubHtml(string value)
-            //Borrowed from Stackoverflow http://stackoverflow.com/questions/19523913/remove-html-tags-from-string-including-nbsp-in-c-sharp
+        //Borrowed from Stackoverflow http://stackoverflow.com/questions/19523913/remove-html-tags-from-string-including-nbsp-in-c-sharp
         {
             String step1 = Regex.Replace(value, @"<[^>]+>|&nbsp;", "").Trim();
             String step2 = Regex.Replace(step1, @"\s{2,}", " ");
@@ -220,9 +221,9 @@ namespace GrabbingLib
         }
 
         public static string ByteSize(ulong size)
-            //Borrowed from Stackoverflow http://stackoverflow.com/questions/281640/how-do-i-get-a-human-readable-file-size-in-bytes-abbreviation-using-net
+        //Borrowed from Stackoverflow http://stackoverflow.com/questions/281640/how-do-i-get-a-human-readable-file-size-in-bytes-abbreviation-using-net
         {
-            string[] sizeSuffixes = {"B", "KB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB"};
+            string[] sizeSuffixes = { "B", "KB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB" };
             string formatTemplate = "{0}{1:0.#} {2}";
 
             if (size == 0)
@@ -232,7 +233,7 @@ namespace GrabbingLib
             double fpPower = Math.Log(absSize, 1000);
             var intPower = (int) fpPower;
             int iUnit = intPower >= sizeSuffixes.Length ? sizeSuffixes.Length - 1 : intPower;
-            double normSize = absSize/Math.Pow(1000, iUnit);
+            double normSize = absSize / Math.Pow(1000, iUnit);
 
             return string.Format(formatTemplate, size < 0 ? "-" : null, normSize, sizeSuffixes[iUnit]);
         }
