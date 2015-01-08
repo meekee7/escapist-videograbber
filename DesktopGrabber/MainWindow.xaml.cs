@@ -190,7 +190,10 @@ namespace DesktopGrabber
                 Grabber.waitForNewZPEpisode(tokensource.Token,
                     async oldtitle => MessageBox.Show("Please confirm that this is the old episode: " + oldtitle,
                         "Confirm old episode", MessageBoxButton.YesNo) == MessageBoxResult.Yes, async () =>
-                            await showmessage("Timeout: maximum number of attempts reached"),
+                        {
+                            await showmessage("Timeout: maximum number of attempts reached");
+                            purge();
+                        },
                     attempt => { proglabel.Content = "Attempt: " + attempt; }, () =>
                     {
                         //No specific action

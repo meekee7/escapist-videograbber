@@ -60,8 +60,6 @@ namespace GrabbingLib
                 }
                 if (attempt == maximum)
                     await timeoutaction.Invoke();
-                    //TODO overflowexception is for arithmetic, what do we use?
-
                 else if (!ctoken.IsCancellationRequested)
                 {
                     foundaction.Invoke();
@@ -142,7 +140,8 @@ namespace GrabbingLib
             try
             {
                 WebRequest request = WebRequest.CreateHttp(videopage);
-                request.Headers[HttpRequestHeader.CacheControl] = "no-cache";
+                if (videopage.Equals(ZPLatestURL)) //If we are waiting for a specific episode, then we can allow caching
+                    request.Headers[HttpRequestHeader.CacheControl] = "no-cache"; //or use the default mode
                 request.Credentials = CredentialCache.DefaultCredentials;
                 WebResponse response = await request.GetResponseAsync();
 

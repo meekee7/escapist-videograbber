@@ -97,10 +97,11 @@ namespace EscapistVideograbber
                 await dialog.ShowAsync();
 
                 return dialogresult.Value;
-            }, async () => await CommHelp.showmessage(resload.GetString("TimeoutMsg")),attempt =>
+            }, async () =>
             {
-                StateLabel.Text = String.Format(resload.GetString("StateLabel/Attempt"), attempt);
-            }, () =>
+                await CommHelp.showmessage(resload.GetString("TimeoutMsg"));
+                Frame.GoBack();
+            }, attempt => { StateLabel.Text = String.Format(resload.GetString("StateLabel/Attempt"), attempt); }, () =>
             {
                 //No specific action
             }, () => { StateLabel.Text = resload.GetString("StateLabel/HTMLDone"); },
@@ -173,7 +174,8 @@ namespace EscapistVideograbber
                                   + Grabber.ByteSize(total) + " )";
             }, async (filepath, wascancelled) =>
             {
-                Frame.GoBack();
+                if (Frame.CanGoBack) //If we leave out this check, then we get an exception from goback for some reason
+                    Frame.GoBack();
                 if (!wascancelled)
                 {
                     if (taskarguments.opendl)
