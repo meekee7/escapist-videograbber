@@ -41,7 +41,7 @@ namespace GrabbingLib
             String oldname = (await getJSONURL(url, false)).title;
             if (!ctoken.IsCancellationRequested && await confirmold.Invoke(oldname))
             {
-                int maximum = 600;
+                int maximum = 500;
                 int attempt;
                 for (attempt = 1;
                     (await getJSONURL(url, true)).title.Equals(oldname) && !ctoken.IsCancellationRequested &&
@@ -51,7 +51,7 @@ namespace GrabbingLib
                     updateattempt.Invoke(attempt);
                     try
                     {
-                        await Task.Delay(1000, ctoken);
+                        await Task.Delay(5000, ctoken);
                     }
                     catch (TaskCanceledException)
                     {
@@ -82,9 +82,8 @@ namespace GrabbingLib
 
         //showmsg is for debugging
         public static async Task evaluateURL(String videopage, bool hq, Func<Exception, Task> erroraction,
-            Action htmlaction,
-            Action jsonaction, Func<String, Task<String>> getFilePath, Downloader downloader, Func<String, Task> showmsg,
-            Action canceltask, CancellationToken ctoken)
+            Action htmlaction, Action jsonaction, Func<String, Task<String>> getFilePath, Downloader downloader,
+            Func<String, Task> showmsg, Action canceltask, CancellationToken ctoken)
         {
             if (ctoken.IsCancellationRequested)
             {

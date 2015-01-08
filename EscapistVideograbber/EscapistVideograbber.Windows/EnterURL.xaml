@@ -19,7 +19,7 @@
             <!--<Button x:Uid="refreshbtn" x:Name="RefreshBtn" Content="Refresh" HorizontalAlignment="Stretch" Grid.Row="1" VerticalAlignment="Stretch" Click="RefreshBtn_Click"/>
             <Button x:Uid="websitebtn" x:Name="WebsiteBtn" Content="Visit RSI" HorizontalAlignment="Stretch" Grid.Row="1" VerticalAlignment="Stretch" Click="WebsiteBtn_Click"/>
             <Button x:Uid="configbtn" x:Name="ConfigBtn" Content="Config" HorizontalAlignment="Stretch" Grid.Row="1" VerticalAlignment="Stretch" Click="ConfigBtn_Click"/>-->
-            <AppBarButton x:Uid="waitZPbtn" x:Name="WaitZPBtn" Icon="Globe" Label="WaitZP" Click="WaitZPBtn_Click" />
+            <AppBarButton x:Uid="WaitZPbtn" x:Name="WaitZPBtn" Icon="Globe" Label="WaitZP" Click="WaitZPBtn_Click" />
         </CommandBar>
     </Page.BottomAppBar>
 

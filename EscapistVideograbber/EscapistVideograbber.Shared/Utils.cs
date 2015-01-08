@@ -80,9 +80,9 @@ namespace EscapistVideograbber
                 dialog.Commands.Add(new UICommand(ResourceLoader.GetForCurrentView().GetString("msg/OK")));
                 await dialog.ShowAsync();
             }
-            catch (Exception e)
-            {
-                e.ToString();
+            catch (Exception e) //turns out that showAsync is not thread-safe and multiple message dialoges
+            { //At the same time lead to an obscure exception
+                e.ToString(); //That is just here so that we have a breakpoint for the debugger
             }
         }
 
@@ -96,18 +96,6 @@ namespace EscapistVideograbber
             StorageFile file = (await folder.GetFilesAsync()).FirstOrDefault(x => x.Name.Equals(filename)) ??
                                await folder.CreateFileAsync(filename);
             return file.Path;
-        }
-
-        internal class DisplayMessage
-        {
-            internal readonly String message;
-            internal readonly String title;
-
-            public DisplayMessage(string title, string message)
-            {
-                this.title = title;
-                this.message = message;
-            }
         }
     }
 

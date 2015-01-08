@@ -116,7 +116,8 @@ namespace EscapistVideograbber
                                       + Grabber.ByteSize(total) + " )";
                 }, async (filepath, wascancelled) =>
                 {
-                    Frame.GoBack();
+                    if (Frame.CanGoBack) //Leaving this out causes an exception within goback
+                        Frame.GoBack();
                     if (!wascancelled)
                     {
                         if (taskarguments.opendl)

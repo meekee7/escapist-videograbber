@@ -249,4 +249,7 @@
   <data name="TimeoutMsg" xml:space="preserve">
     <value>Timeout: Die maximale Anzahl an Versuchen wurde erreicht.</value>
   </data>
+  <data name="WaitzPBtn.Label" xml:space="preserve">
+    <value>Episode erwarten</value>
+  </data>
 </root>
