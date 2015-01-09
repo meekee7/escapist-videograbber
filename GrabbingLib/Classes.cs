@@ -13,7 +13,8 @@ namespace GrabbingLib
     public class Grabber
     {
         public static readonly String ZPLatestURL =
-            "http://www.escapistmagazine.com/videos/view/zero-punctuation/latest";
+            "http://www.escapistmagazine.com/videos/view/escapist-podcast-science-and-tech/latest";
+            //"http://www.escapistmagazine.com/videos/view/zero-punctuation/latest";
 
         public static readonly String EscapistDir = "Escapist";
         private static Downloader download;
