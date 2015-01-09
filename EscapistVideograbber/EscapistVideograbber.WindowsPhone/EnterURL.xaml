@@ -13,6 +13,7 @@
             <CommandBar.SecondaryCommands>
                 <AppBarButton x:Uid="OverrideNOWIFIbtn" x:Name="OverrideNOWIFIbtn" Label="Override NOWIFI"
                               Click="OverrideNOWIFIbtn_Click" />
+                <AppBarButton x:Uid="WaitZPbtn" x:Name="WaitZPBtn" Label="Await new ZP episode" Click="WaitZPBtn_Click" />
             </CommandBar.SecondaryCommands>
         </CommandBar>
     </Page.BottomAppBar>

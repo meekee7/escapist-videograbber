@@ -183,5 +183,12 @@ namespace EscapistVideograbber
         }
 
         #endregion
+
+        private void WaitZPBtn_Click(object sender, RoutedEventArgs e)
+        {
+            Appstate.state.currentaction = new WaitForNewZP(HQCB.IsChecked.GetValueOrDefault(),
+                AutosaveCB.IsChecked.GetValueOrDefault());
+            Frame.Navigate(typeof (Evaluation));
+        }
     }
 }

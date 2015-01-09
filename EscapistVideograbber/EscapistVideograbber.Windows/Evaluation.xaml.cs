@@ -100,12 +100,14 @@ namespace EscapistVideograbber
             }, async () =>
             {
                 await CommHelp.showmessage(resload.GetString("TimeoutMsg"));
-                Frame.GoBack();
-            }, attempt => { StateLabel.Text = String.Format(resload.GetString("StateLabel/Attempt"), attempt); }, () =>
+                if (Frame.CanGoBack)
+                    Frame.GoBack();
+            }, attempt => StateLabel.Text = String.Format(resload.GetString("StateLabel/Attempt"), attempt),
+            () =>
             {
                 //No specific action
-            }, () => { StateLabel.Text = resload.GetString("StateLabel/HTMLDone"); },
-                () => { StateLabel.Text = resload.GetString("StateLabel/DLStart"); },
+            }, () => StateLabel.Text = resload.GetString("StateLabel/HTMLDone"),
+                () => StateLabel.Text = resload.GetString("StateLabel/DLStart"),
                 FileChooser(taskarguments.autosave), new Downloadhelper((received, total) =>
                 {
                     //Progress in the download was made
@@ -132,15 +134,15 @@ namespace EscapistVideograbber
                 }), CommHelp.showmessage, () =>
                 {
                     Grabber.finishDL();
-                    if (navigationHelper.CanGoBack())
-                        navigationHelper.GoBack();
+                    if (Frame.CanGoBack)
+                        Frame.GoBack();
                 }, ShowError);
         }
 
         private async Task getvideotitle(GetLatestZP taskarguments)
         {
             Task<string> titletask = Grabber.getLatestZPTitle();
-            ProgBar.Value = 0;
+            ProgBar.Value = 0.0;
             ProgBar.IsIndeterminate = true;
             StateLabel.Text = ResourceLoader.GetForCurrentView().GetString("StateLabel/HTMLParse");
             string titlestring = await titletask;
@@ -223,6 +225,8 @@ namespace EscapistVideograbber
         {
             Grabber.finishDL();
         }
+
+        
 
         private Func<String, Task<String>> FileChooser(bool autosave)
         {
