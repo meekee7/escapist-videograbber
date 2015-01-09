@@ -24,6 +24,54 @@ namespace DesktopGrabber
             InitializeComponent();
         }
 
+        private Action Jsonaction
+        {
+            get { return () => proglabel.Content = "Starting video download"; }
+        }
+
+        private Action Htmlaction
+        {
+            get { return () => proglabel.Content = "Loading video data"; }
+        }
+
+        private Action<string, bool> Finishhandler
+        {
+            get
+            {
+                return (filepath, wascancelled) =>
+                {
+                    if (!wascancelled)
+                    {
+                        if (openchkbox.IsChecked != null && openchkbox.IsChecked.Value)
+                            Process.Start(filepath);
+                        else
+                            MessageBox.Show("The download is complete. The file was saved to " + filepath,
+                                "Task complete");
+                        urlbox.Text = "";
+                    }
+                    purge();
+                };
+            }
+        }
+
+        private Action<ulong, ulong> Updatehandler
+        {
+            get
+            {
+                return (received, total) =>
+                {
+                    double progress = ((double) received / total) * 100;
+                    progbar.Value = progress;
+                    progbar.IsIndeterminate = false;
+                    taskbar.ProgressState = TaskbarItemProgressState.Normal;
+                    taskbar.ProgressValue = progress / 100.0;
+                    proglabel.Content = "Download running - " + (int) progress + " % ( "
+                                        + Grabber.ByteSize(received) + " / "
+                                        + Grabber.ByteSize(total) + " )";
+                };
+            }
+        }
+
         private void latestzpbtn_Click(object sender, RoutedEventArgs e)
         {
             urlbox.Text = Grabber.ZPLatestURL;
@@ -76,12 +124,6 @@ namespace DesktopGrabber
             MessageBox.Show(message);
         }
 
-        private async Task<bool> confirmOldTitle(String oldtitle)
-        {
-            return MessageBox.Show("Please confirm that this is the old episode: " + oldtitle,
-                "Confirm old episode", MessageBoxButton.YesNo) == MessageBoxResult.Yes;
-        }
-
         private async Task<String> FileChooser(String title)
         {
             if (autosavechkbox.IsChecked.HasValue && autosavechkbox.IsChecked.Value)
@@ -124,42 +166,11 @@ namespace DesktopGrabber
 
         private async void startdl()
         {
-            urlbox.IsEnabled = false;
-            latestzpbtn.IsEnabled = false;
-            pastebtn.IsEnabled = false;
-            openchkbox.IsEnabled = false;
-            hqchkbox.IsEnabled = false;
-            autosavechkbox.IsEnabled = false;
-            startbtn.IsEnabled = false;
-            awaitbtn.IsEnabled = false;
-            cancelbtn.IsEnabled = true;
-            progbar.IsIndeterminate = true;
-            taskbar.ProgressState = TaskbarItemProgressState.Indeterminate;
-            proglabel.Content = "Loading website";
+            lockup();
             await
                 Grabber.evaluateURL(urlbox.Text, hqchkbox.IsChecked != null && hqchkbox.IsChecked.Value, showerror,
-                    () => { proglabel.Content = "Loading video data"; },
-                    () => { proglabel.Content = "Starting video download"; }, FileChooser,
-                    new Downloadhelper((received, total) =>
-                    {
-                        double progress = ((double) received / total) * 100;
-                        progbar.Value = progress;
-                        progbar.IsIndeterminate = false;
-                        taskbar.ProgressState = TaskbarItemProgressState.Normal;
-                        taskbar.ProgressValue = progress / 100.0;
-                        proglabel.Content = "Download running - " + (int) progress + " % ( "
-                                            + Grabber.ByteSize(received) + " / "
-                                            + Grabber.ByteSize(total) + " )";
-                    }, delegate(string filepath, bool wascancelled)
-                    {
-                        if (!wascancelled)
-                            if (openchkbox.IsChecked != null && openchkbox.IsChecked.Value)
-                                Process.Start(filepath);
-                            else
-                                MessageBox.Show("The download is complete. The file was saved to " + filepath,
-                                    "Task complete");
-                        purge();
-                    }), showmessage, purge, tokensource.Token);
+                    Htmlaction, Jsonaction, FileChooser, new Downloadhelper(Updatehandler, Finishhandler), showmessage,
+                    purge, tokensource.Token);
         }
 
         private void clearbtn_Click(object sender, RoutedEventArgs e)
@@ -174,6 +185,24 @@ namespace DesktopGrabber
 
         private async void awaitbtn_Click(object sender, RoutedEventArgs e)
         {
+            lockup();
+            await
+                Grabber.waitForNewZPEpisode(tokensource.Token,
+                    async oldtitle => MessageBox.Show("Please confirm that this is the old episode: " + oldtitle,
+                        "Confirm old episode", MessageBoxButton.YesNo) == MessageBoxResult.Yes, async () =>
+                        {
+                            await showmessage("Timeout: maximum number of attempts reached");
+                            purge();
+                        },
+                    attempt => proglabel.Content = "Attempt: " + attempt, () =>
+                    {
+                        //No specific action
+                    }, Htmlaction, Jsonaction, FileChooser, new Downloadhelper(Updatehandler, Finishhandler),
+                    showmessage, purge, showerror);
+        }
+
+        private void lockup()
+        {
             urlbox.IsEnabled = false;
             latestzpbtn.IsEnabled = false;
             pastebtn.IsEnabled = false;
@@ -186,40 +215,6 @@ namespace DesktopGrabber
             progbar.IsIndeterminate = true;
             taskbar.ProgressState = TaskbarItemProgressState.Indeterminate;
             proglabel.Content = "Loading website";
-            await
-                Grabber.waitForNewZPEpisode(tokensource.Token,
-                    async oldtitle => MessageBox.Show("Please confirm that this is the old episode: " + oldtitle,
-                        "Confirm old episode", MessageBoxButton.YesNo) == MessageBoxResult.Yes, async () =>
-                        {
-                            await showmessage("Timeout: maximum number of attempts reached");
-                            purge();
-                        },
-                    attempt => { proglabel.Content = "Attempt: " + attempt; }, () =>
-                    {
-                        //No specific action
-                    },
-                    () => { proglabel.Content = "Loading video data"; },
-                    () => { proglabel.Content = "Starting video download"; }, FileChooser,
-                    new Downloadhelper((received, total) =>
-                    {
-                        double progress = ((double) received / total) * 100;
-                        progbar.Value = progress;
-                        progbar.IsIndeterminate = false;
-                        taskbar.ProgressState = TaskbarItemProgressState.Normal;
-                        taskbar.ProgressValue = progress / 100.0;
-                        proglabel.Content = "Download running - " + (int) progress + " % ( "
-                                            + Grabber.ByteSize(received) + " / "
-                                            + Grabber.ByteSize(total) + " )";
-                    }, delegate(string filepath, bool wascancelled)
-                    {
-                        if (!wascancelled)
-                            if (openchkbox.IsChecked != null && openchkbox.IsChecked.Value)
-                                Process.Start(filepath);
-                            else
-                                MessageBox.Show("The download is complete. The file was saved to " + filepath,
-                                    "Task complete");
-                        purge();
-                    }), showmessage, purge, showerror);
         }
     }
 }

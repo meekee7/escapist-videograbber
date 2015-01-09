@@ -13,8 +13,7 @@ namespace GrabbingLib
     public class Grabber
     {
         public static readonly String ZPLatestURL =
-            "http://www.escapistmagazine.com/videos/view/escapist-podcast-science-and-tech/latest";
-            //"http://www.escapistmagazine.com/videos/view/zero-punctuation/latest";
+            "http://www.escapistmagazine.com/videos/view/zero-punctuation/latest";
 
         public static readonly String EscapistDir = "Escapist";
         private static Downloader download;
@@ -44,8 +43,9 @@ namespace GrabbingLib
             {
                 int maximum = 500;
                 int attempt;
+                ParsingResult latestresult;
                 for (attempt = 1;
-                    (await getJSONURL(url, true)).title.Equals(oldname) && !ctoken.IsCancellationRequested &&
+                    (latestresult = await getJSONURL(url, true)).title.Equals(oldname) && !ctoken.IsCancellationRequested &&
                     attempt < maximum;
                     attempt++)
                 {
@@ -65,8 +65,8 @@ namespace GrabbingLib
                 {
                     foundaction.Invoke();
                     await
-                        evaluateURL(ZPLatestURL, true, erroraction, htmlaction, jsonaction, getFilePath, downloader,
-                            showmsg, canceltask, ctoken);
+                        downloadHelper(erroraction, htmlaction, jsonaction, getFilePath, downloader, showmsg, canceltask,
+                            ctoken, latestresult);
                 }
                 else
                     canceltask.Invoke();
@@ -97,6 +97,12 @@ namespace GrabbingLib
                 canceltask.Invoke();
                 return;
             }
+            await downloadHelper(erroraction, htmlaction, jsonaction, getFilePath, downloader, showmsg, canceltask, ctoken, htmlresult);
+        }
+
+        private static async Task downloadHelper(Func<Exception, Task> erroraction, Action htmlaction, Action jsonaction, Func<string, Task<string>> getFilePath,
+            Downloader downloader, Func<String, Task> showmsg, Action canceltask, CancellationToken ctoken, ParsingResult htmlresult)
+        {
             if (htmlresult.error != null)
             {
                 await erroraction.Invoke(htmlresult.error);
