@@ -228,7 +228,7 @@
   <data name="ProbeZPBtn.Content" xml:space="preserve">
     <value>Aktueller ZP-Titel</value>
   </data>
-  <data name="ConfirmTitle.No" xml:space="preserve">
+  <data name="msg.No" xml:space="preserve">
     <value>Nein</value>
   </data>
   <data name="ConfirmTitle.Text" xml:space="preserve">
@@ -237,7 +237,7 @@
   <data name="ConfirmTitle.Title" xml:space="preserve">
     <value>Vorgang bestätigen</value>
   </data>
-  <data name="ConfirmTitle.Yes" xml:space="preserve">
+  <data name="msg.Yes" xml:space="preserve">
     <value>Ja</value>
   </data>
   <data name="msg.DefaultTitle" xml:space="preserve">

@@ -67,6 +67,26 @@ namespace EscapistVideograbber
         {
         }
 
+        public static async Task<bool> askyesno(String message, String title)
+        {
+            bool dialogresult = false;
+            try
+            {
+                var resload = ResourceLoader.GetForViewIndependentUse();
+                var dialog = new MessageDialog(message, title);
+                dialog.Commands.Add(new UICommand(resload.GetString("msg/Yes"),
+                    command => dialogresult = true));
+                dialog.Commands.Add(new UICommand(resload.GetString("msg/No"),
+                    command => dialogresult = false));
+                await dialog.ShowAsync();
+            }
+            catch (Exception e) //turns out that showAsync is not thread-safe and multiple message dialoges
+            { //At the same time lead to an obscure exception
+                e.ToString(); //That is just here so that we can have a breakpoint for the debugger
+            }
+            return dialogresult;
+        }
+
         public static async Task showmessage(String message)
         {
             await showmessage(message, ResourceLoader.GetForCurrentView().GetString("msg/DefaultTitle"));
@@ -77,12 +97,12 @@ namespace EscapistVideograbber
             try
             {
                 var dialog = new MessageDialog(message, title);
-                dialog.Commands.Add(new UICommand(ResourceLoader.GetForCurrentView().GetString("msg/OK")));
+                dialog.Commands.Add(new UICommand(ResourceLoader.GetForViewIndependentUse().GetString("msg/OK")));
                 await dialog.ShowAsync();
             }
             catch (Exception e) //turns out that showAsync is not thread-safe and multiple message dialoges
             { //At the same time lead to an obscure exception
-                e.ToString(); //That is just here so that we have a breakpoint for the debugger
+                e.ToString(); //That is just here so that we can have a breakpoint for the debugger
             }
         }
 

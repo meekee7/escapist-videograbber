@@ -6,7 +6,6 @@ using Windows.ApplicationModel.Resources;
 using Windows.Storage;
 using Windows.Storage.Pickers;
 using Windows.System;
-using Windows.UI.Popups;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Navigation;
@@ -85,58 +84,71 @@ namespace EscapistVideograbber
             ResourceLoader resload = ResourceLoader.GetForCurrentView();
             ProgBar.IsIndeterminate = true;
             StateLabel.Text = resload.GetString("StateLabel/HTMLParse");
-            await Grabber.waitForNewZPEpisode(tokensource.Token, async title =>
-            {
-                var dialog = new MessageDialog(String.Format(resload.GetString("ConfirmTitle/Text"), title),
-                    resload.GetString("ConfirmTitle/Title"));
-                bool? dialogresult = null;
-                dialog.Commands.Add(new UICommand(resload.GetString("ConfirmTitle/Yes"),
-                    command => { dialogresult = true; }));
-                dialog.Commands.Add(new UICommand(resload.GetString("ConfirmTitle/No"),
-                    command => { dialogresult = false; }));
-                await dialog.ShowAsync();
-
-                return dialogresult.Value;
-            }, async () =>
-            {
-                await CommHelp.showmessage(resload.GetString("TimeoutMsg"));
-                if (Frame.CanGoBack)
-                    Frame.GoBack();
-            }, attempt => StateLabel.Text = String.Format(resload.GetString("StateLabel/Attempt"), attempt),
-            () =>
-            {
-                //No specific action
-            }, () => StateLabel.Text = resload.GetString("StateLabel/HTMLDone"),
-                () => StateLabel.Text = resload.GetString("StateLabel/DLStart"),
-                FileChooser(taskarguments.autosave), new Downloadhelper((received, total) =>
+            await Grabber.waitForNewZPEpisode(tokensource.Token, title =>
+                CommHelp.askyesno(String.Format(resload.GetString("ConfirmTitle/Text"), title),
+                    resload.GetString("ConfirmTitle/Title")),
+                async () =>
                 {
-                    //Progress in the download was made
-                    double progress = ((double) received / total) * 100;
-                    ProgBar.Value = progress;
-                    StateLabel.Text = resload.GetString("StateLabel/DLProg") + ' ' + (int) progress + " % ( "
-                                      + Grabber.ByteSize(received) + " / "
-                                      + Grabber.ByteSize(total) + " )";
-                }, async (filepath, wascancelled) =>
-                {
-                    if (Frame.CanGoBack) //Leaving this out causes an exception within goback
-                        Frame.GoBack();
-                    if (!wascancelled)
-                    {
-                        if (taskarguments.opendl)
-                            //await Launcher.LaunchUriAsync(new Uri(filepath));
-                            await Launcher.LaunchFileAsync(await StorageFile.GetFileFromPathAsync(filepath));
-                        else
-                            await
-                                CommHelp.showmessage(String.Format(resload.GetString("dlfinish/text"), filepath,
-                                    resload.GetString("dlfinish/title")));
-                        Grabber.finishDL();
-                    }
-                }), CommHelp.showmessage, () =>
-                {
-                    Grabber.finishDL();
+                    await CommHelp.showmessage(resload.GetString("TimeoutMsg"));
                     if (Frame.CanGoBack)
                         Frame.GoBack();
-                }, ShowError);
+                }, attempt => StateLabel.Text = String.Format(resload.GetString("StateLabel/Attempt"), attempt),
+                () =>
+                {
+                    //No specific action
+                }, Htmlaction(),
+                Jsonaction(),
+                FileChooser(taskarguments.autosave), Downloader(taskarguments.opendl), CommHelp.showmessage,
+                Canceltask(), ShowError);
+        }
+
+        private Action Canceltask()
+        {
+            return () =>
+            {
+                Grabber.finishDL();
+                if (Frame.CanGoBack)
+                    Frame.GoBack();
+            };
+        }
+
+        private Downloadhelper Downloader(bool opendl)
+        {
+            ResourceLoader resload = ResourceLoader.GetForCurrentView();
+            return new Downloadhelper((received, total) =>
+            {
+                //Progress in the download was made
+                double progress = ((double) received / total) * 100;
+                ProgBar.Value = progress;
+                StateLabel.Text = resload.GetString("StateLabel/DLProg") + ' ' + (int) progress + " % ( "
+                                  + Grabber.ByteSize(received) + " / "
+                                  + Grabber.ByteSize(total) + " )";
+            }, async (filepath, wascancelled) =>
+            {
+                if (Frame.CanGoBack) //Leaving this out causes an exception within goback
+                    Frame.GoBack();
+                if (!wascancelled)
+                {
+                    if (opendl)
+                        //await Launcher.LaunchUriAsync(new Uri(filepath));
+                        await Launcher.LaunchFileAsync(await StorageFile.GetFileFromPathAsync(filepath));
+                    else
+                        await
+                            CommHelp.showmessage(String.Format(resload.GetString("dlfinish/text"), filepath,
+                                resload.GetString("dlfinish/title")));
+                    Grabber.finishDL();
+                }
+            });
+        }
+
+        private Action Jsonaction()
+        {
+            return () => StateLabel.Text = ResourceLoader.GetForCurrentView().GetString("StateLabel/DLStart");
+        }
+
+        private Action Htmlaction()
+        {
+            return () => StateLabel.Text = ResourceLoader.GetForCurrentView().GetString("StateLabel/HTMLDone");
         }
 
         private async Task getvideotitle(GetLatestZP taskarguments)
@@ -150,7 +162,8 @@ namespace EscapistVideograbber
             if (!tokensource.IsCancellationRequested || tokensource.Token.IsCancellationRequested)
             {
                 await CommHelp.showmessage(titlestring, ResourceLoader.GetForCurrentView().GetString("Probe/title"));
-                Frame.GoBack();
+                if (Frame.CanGoBack)
+                    Frame.GoBack();
             }
         }
 
@@ -159,46 +172,9 @@ namespace EscapistVideograbber
             ProgBar.IsIndeterminate = true;
             ResourceLoader resload = ResourceLoader.GetForCurrentView();
             StateLabel.Text = resload.GetString("StateLabel/HTMLParse");
-            await Grabber.evaluateURL(taskarguments.enteredURL, taskarguments.hq, ShowError, () =>
-            {
-                //HTML parsed
-                StateLabel.Text = resload.GetString("StateLabel/HTMLDone");
-            }, () =>
-            {
-                //JSON parsed
-                StateLabel.Text = resload.GetString("StateLabel/DLStart");
-            }, FileChooser(taskarguments.autosave), new Downloadhelper((received, total) =>
-            {
-                //Progress in the download was made
-                double progress = ((double) received / total) * 100;
-                ProgBar.Value = progress;
-                StateLabel.Text = resload.GetString("StateLabel/DLProg") + ' ' + (int) progress + " % ( "
-                                  + Grabber.ByteSize(received) + " / "
-                                  + Grabber.ByteSize(total) + " )";
-            }, async (filepath, wascancelled) =>
-            {
-                if (Frame.CanGoBack) //If we leave out this check, then we get an exception from goback for some reason
-                    Frame.GoBack();
-                if (!wascancelled)
-                {
-                    if (taskarguments.opendl)
-                        //await Launcher.LaunchUriAsync(new Uri(filepath));
-                        await Launcher.LaunchFileAsync(await StorageFile.GetFileFromPathAsync(filepath));
-                    else
-                    {
-                        var dialog = new MessageDialog(String.Format(resload.GetString("dlfinish/text"), filepath),
-                            resload.GetString("dlfinish/title"));
-                        dialog.Commands.Add(new UICommand(resload.GetString("dlfinish/ok")));
-                        await dialog.ShowAsync();
-                    }
-                    Grabber.finishDL();
-                }
-            }), CommHelp.showmessage, () =>
-            {
-                Grabber.finishDL();
-                if (navigationHelper.CanGoBack())
-                    navigationHelper.GoBack();
-            }, tokensource.Token);
+            await Grabber.evaluateURL(taskarguments.enteredURL, taskarguments.hq, ShowError, Htmlaction(), Jsonaction(),
+                FileChooser(taskarguments.autosave), Downloader(taskarguments.opendl), CommHelp.showmessage,
+                Canceltask(), tokensource.Token);
         }
 
         private void backButton_Click(object sender, RoutedEventArgs e)
@@ -226,7 +202,6 @@ namespace EscapistVideograbber
             Grabber.finishDL();
         }
 
-        
 
         private Func<String, Task<String>> FileChooser(bool autosave)
         {
