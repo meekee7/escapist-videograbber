@@ -90,6 +90,7 @@ namespace EscapistVideograbber
             HardwareButtons.BackPressed += HardwareButtons_BackPressed;
             tokensource = new CancellationTokenSource();
             ProgBar.IsIndeterminate = true;
+            StateLabel.Text = ResourceLoader.GetForCurrentView().GetString("StateLabel/HTMLParse");
             var useraction = Appstate.state.currentaction;
             if (useraction.GetType() == typeof (GrabVideo)) //If this becomes too big then turn this into a dictionary
                 await rungrabber(useraction as GrabVideo);
@@ -177,10 +178,7 @@ namespace EscapistVideograbber
 
         private async Task getvideotitle(GetLatestZP taskarguments)
         {
-            var titletask = Grabber.getLatestZPTitle();
-            StateLabel.Text = ResourceLoader.GetForCurrentView().GetString("StateLabel/HTMLParse");
-            var titlestring = await titletask;
-            ProgBar.IsIndeterminate = false;
+            var titlestring = await Grabber.getLatestZPTitle();
             if (!tokensource.IsCancellationRequested && !tokensource.Token.IsCancellationRequested)
             {
                 await CommHelp.showmessage(titlestring, ResourceLoader.GetForCurrentView().GetString("Probe/title"));
@@ -191,8 +189,6 @@ namespace EscapistVideograbber
 
         private async Task rungrabber(GrabVideo taskarguments)
         {
-            var resload = ResourceLoader.GetForCurrentView();
-            StateLabel.Text = resload.GetString("StateLabel/HTMLParse");
             await Grabber.evaluateURL(taskarguments.enteredURL, taskarguments.hq, ShowError, Htmlaction(), Jsonaction(),
                 getfilechooser(taskarguments.autosave), Downloader(taskarguments.opendl), CommHelp.showmessage,
                 Canceltask(), tokensource.Token);
@@ -243,7 +239,7 @@ namespace EscapistVideograbber
 
                 await waitforresult; //Wait for the signal thread
 
-                return filepath;
+                return this.filepath;
             };
         }
 

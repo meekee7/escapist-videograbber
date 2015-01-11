@@ -70,6 +70,7 @@ namespace EscapistVideograbber
             tokensource = new CancellationTokenSource();
             backButton.Click += backButton_Click;
             ProgBar.IsIndeterminate = true;
+            StateLabel.Text = ResourceLoader.GetForCurrentView().GetString("StateLabel/HTMLParse");
             UserAction useraction = Appstate.state.currentaction;
             if (useraction.GetType() == typeof(GrabVideo)) //If this becomes too big then turn this into a dictionary
                 await rungrabber(useraction as GrabVideo);
@@ -82,8 +83,6 @@ namespace EscapistVideograbber
         private async Task waitfornewepisode(WaitForNewZP taskarguments)
         {
             ResourceLoader resload = ResourceLoader.GetForCurrentView();
-            ProgBar.IsIndeterminate = true;
-            StateLabel.Text = resload.GetString("StateLabel/HTMLParse");
             await Grabber.waitForNewZPEpisode(tokensource.Token, title =>
                 CommHelp.askyesno(String.Format(resload.GetString("ConfirmTitle/Text"), title),
                     resload.GetString("ConfirmTitle/Title")),
@@ -96,10 +95,8 @@ namespace EscapistVideograbber
                 () =>
                 {
                     //No specific action
-                }, Htmlaction(),
-                Jsonaction(),
-                FileChooser(taskarguments.autosave), Downloader(taskarguments.opendl), CommHelp.showmessage,
-                Canceltask(), ShowError);
+                }, Htmlaction(), Jsonaction(), FileChooser(taskarguments.autosave), Downloader(taskarguments.opendl),
+                CommHelp.showmessage, Canceltask(), ShowError);
         }
 
         private Action Canceltask()
@@ -154,9 +151,6 @@ namespace EscapistVideograbber
         private async Task getvideotitle(GetLatestZP taskarguments)
         {
             Task<string> titletask = Grabber.getLatestZPTitle();
-            ProgBar.Value = 0.0;
-            ProgBar.IsIndeterminate = true;
-            StateLabel.Text = ResourceLoader.GetForCurrentView().GetString("StateLabel/HTMLParse");
             string titlestring = await titletask;
             ProgBar.IsIndeterminate = false;
             if (!tokensource.IsCancellationRequested || tokensource.Token.IsCancellationRequested)
@@ -169,9 +163,6 @@ namespace EscapistVideograbber
 
         private async Task rungrabber(GrabVideo taskarguments)
         {
-            ProgBar.IsIndeterminate = true;
-            ResourceLoader resload = ResourceLoader.GetForCurrentView();
-            StateLabel.Text = resload.GetString("StateLabel/HTMLParse");
             await Grabber.evaluateURL(taskarguments.enteredURL, taskarguments.hq, ShowError, Htmlaction(), Jsonaction(),
                 FileChooser(taskarguments.autosave), Downloader(taskarguments.opendl), CommHelp.showmessage,
                 Canceltask(), tokensource.Token);
@@ -226,7 +217,8 @@ namespace EscapistVideograbber
         private async Task ShowError(Exception e)
         {
             await CommHelp.showmessage(e.ToString(), ResourceLoader.GetForCurrentView().GetString("errormsg/title"));
-            Frame.GoBack();
+            if (Frame.CanGoBack)
+                Frame.GoBack();
         }
 
         #region NavigationHelper-Registrierung
