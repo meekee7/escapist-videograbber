@@ -45,7 +45,8 @@ namespace GrabbingLib
                 int attempt;
                 ParsingResult latestresult;
                 for (attempt = 1;
-                    (latestresult = await getJSONURL(url, true)).title.Equals(oldname) && !ctoken.IsCancellationRequested &&
+                    (latestresult = await getJSONURL(url, true)).title.Equals(oldname) &&
+                    !ctoken.IsCancellationRequested &&
                     attempt < maximum;
                     attempt++)
                 {
@@ -97,11 +98,15 @@ namespace GrabbingLib
                 canceltask.Invoke();
                 return;
             }
-            await downloadHelper(erroraction, htmlaction, jsonaction, getFilePath, downloader, showmsg, canceltask, ctoken, htmlresult);
+            await
+                downloadHelper(erroraction, htmlaction, jsonaction, getFilePath, downloader, showmsg, canceltask, ctoken,
+                    htmlresult);
         }
 
-        private static async Task downloadHelper(Func<Exception, Task> erroraction, Action htmlaction, Action jsonaction, Func<string, Task<string>> getFilePath,
-            Downloader downloader, Func<String, Task> showmsg, Action canceltask, CancellationToken ctoken, ParsingResult htmlresult)
+        private static async Task downloadHelper(Func<Exception, Task> erroraction, Action htmlaction, Action jsonaction,
+            Func<string, Task<string>> getFilePath,
+            Downloader downloader, Func<String, Task> showmsg, Action canceltask, CancellationToken ctoken,
+            ParsingResult htmlresult)
         {
             if (htmlresult.error != null)
             {
@@ -154,6 +159,7 @@ namespace GrabbingLib
                 var htmldoc = new HtmlDocument();
                 htmldoc.Load(response.GetResponseStream());
                 HtmlNode head = htmldoc.DocumentNode.ChildNodes.FindFirst("head");
+                HtmlNode body = htmldoc.DocumentNode.ChildNodes.FindFirst("body");
                 if (head != null)
                 {
                     result.title =
@@ -161,13 +167,15 @@ namespace GrabbingLib
                             .FirstOrDefault(
                                 node => node.Attributes["name"] != null && node.Attributes["name"].Value.Equals("title"))
                             .Attributes["content"].Value;
-                    String hrefval =
-                        head.ChildNodes.Where(node => node.Name.Equals("link"))
-                            .FirstOrDefault(node => node.Attributes["rel"].Value.Equals("video_src"))
-                            .Attributes
-                            ["href"].Value;
+                }
+                if (body != null)
+                {
+                    String flashvars = body.Descendants().Where(node => node.Name.Equals("param"))
+                        .FirstOrDefault(node => node.Attributes["name"].Value.Equals("flashvars")).Attributes["value"]
+                        .Value;
                     result.URL =
-                        WebUtility.UrlDecode(hrefval.Split('=')[1]).Split('?')[0];
+                        WebUtility.UrlDecode(flashvars.Split(new[] {"config="}, StringSplitOptions.None)[1]).Split('?')[
+                            0];
                     if (hq)
                         result.URL += "?hq=1";
                 }
@@ -218,7 +226,7 @@ namespace GrabbingLib
         }
 
         private static string ScrubHtml(string value)
-        //Borrowed from Stackoverflow http://stackoverflow.com/questions/19523913/remove-html-tags-from-string-including-nbsp-in-c-sharp
+            //Borrowed from Stackoverflow http://stackoverflow.com/questions/19523913/remove-html-tags-from-string-including-nbsp-in-c-sharp
         {
             String step1 = Regex.Replace(value, @"<[^>]+>|&nbsp;", "").Trim();
             String step2 = Regex.Replace(step1, @"\s{2,}", " ");
@@ -226,9 +234,9 @@ namespace GrabbingLib
         }
 
         public static string ByteSize(ulong size)
-        //Borrowed from Stackoverflow http://stackoverflow.com/questions/281640/how-do-i-get-a-human-readable-file-size-in-bytes-abbreviation-using-net
+            //Borrowed from Stackoverflow http://stackoverflow.com/questions/281640/how-do-i-get-a-human-readable-file-size-in-bytes-abbreviation-using-net
         {
-            string[] sizeSuffixes = { "B", "KB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB" };
+            string[] sizeSuffixes = {"B", "KB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB"};
             string formatTemplate = "{0}{1:0.#} {2}";
 
             if (size == 0)
@@ -238,7 +246,7 @@ namespace GrabbingLib
             double fpPower = Math.Log(absSize, 1000);
             var intPower = (int) fpPower;
             int iUnit = intPower >= sizeSuffixes.Length ? sizeSuffixes.Length - 1 : intPower;
-            double normSize = absSize / Math.Pow(1000, iUnit);
+            double normSize = absSize/Math.Pow(1000, iUnit);
 
             return string.Format(formatTemplate, size < 0 ? "-" : null, normSize, sizeSuffixes[iUnit]);
         }
