@@ -170,14 +170,26 @@ namespace GrabbingLib
                 }
                 if (body != null)
                 {
-                    String flashvars = body.Descendants().Where(node => node.Name.Equals("param"))
-                        .FirstOrDefault(node => node.Attributes["name"].Value.Equals("flashvars")).Attributes["value"]
-                        .Value;
-                    result.URL =
-                        WebUtility.UrlDecode(flashvars.Split(new[] {"config="}, StringSplitOptions.None)[1]).Split('?')[
-                            0];
-                    if (hq)
-                        result.URL += "?hq=1";
+                    var embednode =
+                        body.Descendants()
+                            .Where(node => node.Name.Equals("div"))
+                            .Where(node => node.Attributes.Contains("id"))
+                            .FirstOrDefault(node => node.Attributes["id"].Value.Equals("video_embed"));
+                    if (embednode != null)
+                    {
+                        var codenode =
+                            embednode.Descendants().FirstOrDefault(node => node.InnerText.Contains("flashvars"));
+                        if (codenode != null)
+                        {
+                            String flashvars = codenode.InnerText;
+                            result.URL =
+                                WebUtility.UrlDecode(flashvars.Split(new[] {"config="}, StringSplitOptions.None)[1])
+                                    .Split('?')[
+                                        0];
+                            if (hq)
+                                result.URL += "?hq=1";
+                        }
+                    }
                 }
             }
             catch (Exception e)
@@ -226,7 +238,7 @@ namespace GrabbingLib
         }
 
         private static string ScrubHtml(string value)
-            //Borrowed from Stackoverflow http://stackoverflow.com/questions/19523913/remove-html-tags-from-string-including-nbsp-in-c-sharp
+        //Borrowed from Stackoverflow http://stackoverflow.com/questions/19523913/remove-html-tags-from-string-including-nbsp-in-c-sharp
         {
             String step1 = Regex.Replace(value, @"<[^>]+>|&nbsp;", "").Trim();
             String step2 = Regex.Replace(step1, @"\s{2,}", " ");
@@ -234,9 +246,9 @@ namespace GrabbingLib
         }
 
         public static string ByteSize(ulong size)
-            //Borrowed from Stackoverflow http://stackoverflow.com/questions/281640/how-do-i-get-a-human-readable-file-size-in-bytes-abbreviation-using-net
+        //Borrowed from Stackoverflow http://stackoverflow.com/questions/281640/how-do-i-get-a-human-readable-file-size-in-bytes-abbreviation-using-net
         {
-            string[] sizeSuffixes = {"B", "KB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB"};
+            string[] sizeSuffixes = { "B", "KB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB" };
             string formatTemplate = "{0}{1:0.#} {2}";
 
             if (size == 0)
@@ -246,7 +258,7 @@ namespace GrabbingLib
             double fpPower = Math.Log(absSize, 1000);
             var intPower = (int) fpPower;
             int iUnit = intPower >= sizeSuffixes.Length ? sizeSuffixes.Length - 1 : intPower;
-            double normSize = absSize/Math.Pow(1000, iUnit);
+            double normSize = absSize / Math.Pow(1000, iUnit);
 
             return string.Format(formatTemplate, size < 0 ? "-" : null, normSize, sizeSuffixes[iUnit]);
         }
