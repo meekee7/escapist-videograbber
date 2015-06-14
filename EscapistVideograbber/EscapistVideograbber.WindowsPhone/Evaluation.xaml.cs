@@ -151,6 +151,7 @@ namespace EscapistVideograbber
                         //await Launcher.LaunchUriAsync(new Uri(filepath));
                         //await Launcher.LaunchUriAsync(new Uri("ms-appx:///" + filepath));
                         //TODO see if there is a better way, maybe launch the video app directly
+                        await Task.Delay(1000); //Seems to avoid the video not loading if we wait a little
                         await Launcher.LaunchFileAsync(await StorageFile.GetFileFromPathAsync(filepath));
                     }
                     else

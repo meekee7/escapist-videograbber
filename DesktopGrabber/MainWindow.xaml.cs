@@ -93,7 +93,7 @@ namespace DesktopGrabber
             latestzpbtn.IsEnabled = true;
             pastebtn.IsEnabled = true;
             openchkbox.IsEnabled = true;
-            hqchkbox.IsEnabled = true;
+            // hqchkbox.IsEnabled = true;
             autosavechkbox.IsEnabled = true;
             startbtn.IsEnabled = true;
             cancelbtn.IsEnabled = false;
@@ -124,22 +124,23 @@ namespace DesktopGrabber
             MessageBox.Show(message);
         }
 
-        private async Task<String> FileChooser(String title)
+        private async Task<String> FileChooser(String title, ParsingRequest.CONTAINER container)
         {
+            String extension = container == ParsingRequest.CONTAINER.C_MP4 ? ".mp4" : ".webm";
             if (autosavechkbox.IsChecked.HasValue && autosavechkbox.IsChecked.Value)
             {
                 string videopath = Environment.GetFolderPath(Environment.SpecialFolder.MyVideos) + '\\' +
                                    Grabber.EscapistDir;
                 if (!Directory.Exists(videopath))
                     Directory.CreateDirectory(videopath);
-                return videopath + '\\' + title + ".mp4";
+                return videopath + '\\' + title + extension;
             }
             var dialog = new SaveFileDialog
             {
-                DefaultExt = ".mp4",
+                DefaultExt = extension,
                 FileName = title,
                 InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.MyVideos),
-                Filter = "MP4 Video Files |*.mp4"
+                Filter = container == ParsingRequest.CONTAINER.C_MP4 ? "MP4 Video Files |*.mp4" : "WebM Video Files |*.webm"
             };
             bool? showDialog = dialog.ShowDialog();
             if (showDialog != null && showDialog.Value)
@@ -167,8 +168,14 @@ namespace DesktopGrabber
         private async void startdl()
         {
             lockup();
+            var res = RB360p.IsChecked != null && RB360p.IsChecked.Value
+                ? ParsingRequest.RESOLUTION.R_360P
+                : ParsingRequest.RESOLUTION.R_480P;
+            var type = RBMP4.IsChecked != null && RBMP4.IsChecked.Value
+                ? ParsingRequest.CONTAINER.C_MP4
+                : ParsingRequest.CONTAINER.C_WEBM;
             await
-                Grabber.evaluateURL(urlbox.Text, hqchkbox.IsChecked != null && hqchkbox.IsChecked.Value, showerror,
+                Grabber.evaluateURL(new ParsingRequest(urlbox.Text, res, type), showerror,
                     Htmlaction, Jsonaction, FileChooser, new Downloadhelper(Updatehandler, Finishhandler), showmessage,
                     purge, tokensource.Token);
         }
@@ -207,7 +214,7 @@ namespace DesktopGrabber
             latestzpbtn.IsEnabled = false;
             pastebtn.IsEnabled = false;
             openchkbox.IsEnabled = false;
-            hqchkbox.IsEnabled = false;
+            //hqchkbox.IsEnabled = false;
             autosavechkbox.IsEnabled = false;
             startbtn.IsEnabled = false;
             awaitbtn.IsEnabled = false;
@@ -215,6 +222,11 @@ namespace DesktopGrabber
             progbar.IsIndeterminate = true;
             taskbar.ProgressState = TaskbarItemProgressState.Indeterminate;
             proglabel.Content = "Loading website";
+        }
+
+        private void RadioButton_Checked(object sender, RoutedEventArgs e)
+        {
+
         }
     }
 }

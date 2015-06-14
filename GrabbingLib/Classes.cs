@@ -34,18 +34,18 @@ namespace GrabbingLib
 
         public static async Task waitForNewZPEpisode(CancellationToken ctoken, Func<String, Task<bool>> confirmold,
             Func<Task> timeoutaction, Action<int> updateattempt, Action foundaction, Action htmlaction,
-            Action jsonaction, Func<String, Task<String>> getFilePath, Downloader downloader, Func<String, Task> showmsg,
+            Action jsonaction, Func<String, ParsingRequest.CONTAINER, Task<String>> getFilePath, Downloader downloader, Func<String, Task> showmsg,
             Action canceltask, Func<Exception, Task> erroraction)
         {
             String url = ZPLatestURL;
-            String oldname = (await getJSONURL(url, false)).title;
+            String oldname = (await getJSONURL(url)).title;
             if (!ctoken.IsCancellationRequested && await confirmold.Invoke(oldname))
             {
                 int maximum = 500;
                 int attempt;
                 ParsingResult latestresult;
                 for (attempt = 1;
-                    (latestresult = await getJSONURL(url, true)).title.Equals(oldname) &&
+                    (latestresult = await getJSONURL(url)).title.Equals(oldname) &&
                     !ctoken.IsCancellationRequested &&
                     attempt < maximum;
                     attempt++)
@@ -67,7 +67,7 @@ namespace GrabbingLib
                     foundaction.Invoke();
                     await
                         downloadHelper(erroraction, htmlaction, jsonaction, getFilePath, downloader, showmsg, canceltask,
-                            ctoken, latestresult);
+                            ctoken, latestresult, null);
                 }
                 else
                     canceltask.Invoke();
@@ -78,13 +78,13 @@ namespace GrabbingLib
 
         public static async Task<String> getLatestZPTitle()
         {
-            ParsingResult parsingresult = await getJSONURL(ZPLatestURL, false);
+            ParsingResult parsingresult = await getJSONURL(ZPLatestURL);
             return parsingresult.error == null ? parsingresult.title : parsingresult.error.ToString();
         }
 
         //showmsg is for debugging
-        public static async Task evaluateURL(String videopage, bool hq, Func<Exception, Task> erroraction,
-            Action htmlaction, Action jsonaction, Func<String, Task<String>> getFilePath, Downloader downloader,
+        public static async Task evaluateURL(ParsingRequest request, Func<Exception, Task> erroraction,
+            Action htmlaction, Action jsonaction, Func<String, ParsingRequest.CONTAINER, Task<String>> getFilePath, Downloader downloader,
             Func<String, Task> showmsg, Action canceltask, CancellationToken ctoken)
         {
             if (ctoken.IsCancellationRequested)
@@ -92,7 +92,7 @@ namespace GrabbingLib
                 canceltask.Invoke();
                 return;
             }
-            ParsingResult htmlresult = await getJSONURL(videopage, hq);
+            ParsingResult htmlresult = await getJSONURL(request.URL);
             if (ctoken.IsCancellationRequested)
             {
                 canceltask.Invoke();
@@ -100,13 +100,13 @@ namespace GrabbingLib
             }
             await
                 downloadHelper(erroraction, htmlaction, jsonaction, getFilePath, downloader, showmsg, canceltask, ctoken,
-                    htmlresult);
+                    htmlresult, request);
         }
 
         private static async Task downloadHelper(Func<Exception, Task> erroraction, Action htmlaction, Action jsonaction,
-            Func<string, Task<string>> getFilePath,
+            Func<string, ParsingRequest.CONTAINER, Task<string>> getFilePath,
             Downloader downloader, Func<String, Task> showmsg, Action canceltask, CancellationToken ctoken,
-            ParsingResult htmlresult)
+            ParsingResult htmlresult, ParsingRequest request)
         {
             if (htmlresult.error != null)
             {
@@ -114,23 +114,16 @@ namespace GrabbingLib
                 return;
             }
             htmlaction.Invoke();
-            ParsingResult jsonresult = await getVideoURL(htmlresult.URL);
+            ParsingResult jsonResult = await getVideoURL(request, htmlresult);
             if (ctoken.IsCancellationRequested)
             {
                 canceltask.Invoke();
                 return;
             }
-            if (jsonresult.error != null)
-            {
-                await erroraction.Invoke(jsonresult.error);
-                return;
-            }
-            jsonaction.Invoke();
-            //String title = htmlresult.title ?? jsonresult.title;
-            String title = String.Join(" ", jsonresult.title.Split(Path.GetInvalidFileNameChars()));
+            String title = String.Join(" ", htmlresult.title.Split(Path.GetInvalidFileNameChars()));
             title = Regex.Replace(title, @"\s+", " ").Trim();
             //Title may contain : and " characters and needs to be beautified
-            String path = await getFilePath.Invoke(title);
+            String path = await getFilePath.Invoke(title, request.Container);
             if (ctoken.IsCancellationRequested)
             {
                 canceltask.Invoke();
@@ -139,13 +132,13 @@ namespace GrabbingLib
             if (path != null)
             {
                 download = downloader;
-                download.startdownload(jsonresult.URL, path);
+                download.startdownload(jsonResult.URL, path);
             }
             else
                 canceltask.Invoke();
         }
 
-        public static async Task<ParsingResult> getJSONURL(String videopage, bool hq)
+        public static async Task<ParsingResult> getJSONURL(String videopage)
         {
             var result = new ParsingResult();
             try
@@ -170,24 +163,25 @@ namespace GrabbingLib
                 }
                 if (body != null)
                 {
-                    var embednode =
-                        body.Descendants()
-                            .Where(node => node.Name.Equals("div"))
-                            .Where(node => node.Attributes.Contains("id"))
-                            .FirstOrDefault(node => node.Attributes["id"].Value.Equals("video_embed"));
-                    if (embednode != null)
+                    var playernode = body.Descendants()
+                      .Where(node => node.Name.Equals("div"))
+                      .Where(node => node.Attributes.Contains("id"))
+                      .FirstOrDefault(node => node.Attributes["id"].Value.Equals("video_player_object"));
+                    if (playernode != null)
                     {
                         var codenode =
-                            embednode.Descendants().FirstOrDefault(node => node.InnerText.Contains("flashvars"));
+                            playernode.Descendants().FirstOrDefault(node => node.InnerText.Contains("imsVideo.play"));
                         if (codenode != null)
                         {
-                            String flashvars = codenode.InnerText;
+                            String playerconfig =
+                                codenode.InnerText.Split(new[] { "imsVideo.play(" }, StringSplitOptions.None)[1];
+                            playerconfig = playerconfig.Substring(0, playerconfig.Length - 2);
+                            JObject jobj = JObject.Parse(playerconfig);
+                            String videoID = (String) jobj["videoID"];
+                            result.hash = (String) jobj["hash"];
                             result.URL =
-                                WebUtility.UrlDecode(flashvars.Split(new[] {"config="}, StringSplitOptions.None)[1])
-                                    .Split('?')[
-                                        0];
-                            if (hq)
-                                result.URL += "?hq=1";
+                                "http://www.escapistmagazine.com/videos/vidconfig.php" + "?" + "videoID=" + videoID +
+                                "&" + "hash=" + result.hash;
                         }
                     }
                 }
@@ -199,36 +193,43 @@ namespace GrabbingLib
             return result;
         }
 
-        public static async Task<ParsingResult> getVideoURL(String jsonurl)
+        public static String decodeJSONConfig(String hash, String jsontext)
+        {
+            var t = "";
+            var a = "";
+            var r = "";
+            while (t.Length < jsontext.Length / 2)
+                t += hash;
+            t = t.Substring(0, jsontext.Length / 2);
+            for (var o = 0; o < jsontext.Length; o += 2)
+                a += (char) Convert.ToInt32("" + jsontext[o] + jsontext[o + 1], 16);
+            for (var o = 0; o < t.Length; o++)
+                r += (char) (t[o] ^ a[o]);
+            return r;
+        }
+
+        public static async Task<ParsingResult> getVideoURL(ParsingRequest parsingRequest, ParsingResult htmlResult)
         {
             var result = new ParsingResult();
             try
             {
-                if (jsonurl == null)
+                if (htmlResult.URL == null)
                     throw new Exception("Video URL not found");
-                WebRequest request = WebRequest.CreateHttp(jsonurl);
+                WebRequest request = WebRequest.CreateHttp(htmlResult.URL);
                 request.Credentials = CredentialCache.DefaultCredentials;
                 WebResponse response = await request.GetResponseAsync();
                 String jsontext = new StreamReader(response.GetResponseStream()).ReadToEnd();
 
+                jsontext = decodeJSONConfig(htmlResult.hash, jsontext);
                 JObject obj = JObject.Parse(jsontext);
-                //Uses Newtonsoft.Json.Linq from the Json.Net package because Windows.Data.Json is only available on Windows (Phone) 8 and above
-                result.title = ScrubHtml(WebUtility.HtmlDecode((String) obj["plugins"]["viral"]["share"]["description"]));
+                result.title = ScrubHtml(WebUtility.HtmlDecode((String) obj["videoData"]["title"]));
+                String cont = parsingRequest.Container == ParsingRequest.CONTAINER.C_MP4 ? "video/mp4" : "video/webm";
+                String res = parsingRequest.Resolution == ParsingRequest.RESOLUTION.R_360P ? "360" : "480";
                 result.URL =
                     (String)
-                        (obj["playlist"].Cast<JObject>().Where(elem => ((String) elem["eventCategory"]).Equals("Video")))
-                            .FirstOrDefault()["url"];
-
-                /*jsontext = jsontext.Replace('\'', '"'); //Windows.Data.Json is rather strict about this
-                JsonObject obj = JsonObject.Parse(jsontext);
-                String desc = obj["plugins"].GetObject()["viral"].GetObject()["share"].GetObject()["description"].GetString();
-                result.title = ScrubHtml(WebUtility.HtmlDecode(desc));
-                foreach (JsonValue elem in obj["playlist"].GetArray())
-                    if (elem.GetObject()["eventCategory"].GetString().Equals("Video"))
-                    {
-                        result.URL = elem.GetObject()["url"].GetString();
-                        return result;
-                    }*/
+                        obj["files"]["videos"]
+                            .Cast<JObject>()
+                            .FirstOrDefault(elem => elem["type"] != null && (String) elem["type"] == cont && elem["res"] != null && (String) elem["res"] == res)["src"];
             }
             catch (Exception e)
             {
@@ -269,12 +270,39 @@ namespace GrabbingLib
         public Exception error { get; set; }
         public String URL { get; set; }
         public String title { get; set; }
+        public String hash { get; set; }
+    }
+
+    public class ParsingRequest
+    {
+        public enum RESOLUTION
+        {
+            R_360P,
+            R_480P
+        }
+
+        public enum CONTAINER
+        {
+            C_WEBM,
+            C_MP4
+        }
+
+        public readonly String URL;
+        public readonly RESOLUTION Resolution;
+        public readonly CONTAINER Container;
+
+        public ParsingRequest(string url, RESOLUTION resolution, CONTAINER container)
+        {
+            URL = url;
+            Resolution = resolution;
+            Container = container;
+        }
     }
 
     public abstract class Downloader
     {
-        protected Action<String, bool> finishhandler;
-        protected Action<ulong, ulong> updatehandler;
+        protected readonly Action<String, bool> finishhandler;
+        protected readonly Action<ulong, ulong> updatehandler;
 
         protected Downloader(Action<ulong, ulong> updatehandler, Action<String, bool> finishhandler)
         {
