@@ -64,7 +64,10 @@ namespace EscapistVideograbber
             if (Appstate.state.EnteredURL != null)
                 URLEnterBox.Text = Appstate.state.EnteredURL;
             OpenAfterDLCB.IsChecked = Appstate.state.opendl;
-            HQCB.IsChecked = Appstate.state.hq;
+            RB360P.IsChecked = Appstate.state.resolution == ParsingRequest.RESOLUTION.R_360P;
+            RB480P.IsChecked = Appstate.state.resolution == ParsingRequest.RESOLUTION.R_480P;
+            RBWebM.IsChecked = Appstate.state.container == ParsingRequest.CONTAINER.C_WEBM;
+            RBMP4.IsChecked = Appstate.state.container == ParsingRequest.CONTAINER.C_MP4;
             AutosaveCB.IsChecked = Appstate.state.autosave;
         }
 
@@ -82,7 +85,12 @@ namespace EscapistVideograbber
         {
             Appstate.state.EnteredURL = URLEnterBox.Text;
             Appstate.state.opendl = OpenAfterDLCB.IsChecked.HasValue && OpenAfterDLCB.IsChecked.Value;
-            Appstate.state.hq = HQCB.IsChecked.HasValue && HQCB.IsChecked.Value;
+            Appstate.state.container = RBMP4.IsChecked.GetValueOrDefault()
+                ? ParsingRequest.CONTAINER.C_MP4
+                : ParsingRequest.CONTAINER.C_WEBM;
+            Appstate.state.resolution = RB480P.IsChecked.GetValueOrDefault()
+                ? ParsingRequest.RESOLUTION.R_480P
+                : ParsingRequest.RESOLUTION.R_360P;
             Appstate.state.autosave = AutosaveCB.IsChecked.HasValue && AutosaveCB.IsChecked.Value;
         }
 
@@ -112,8 +120,14 @@ namespace EscapistVideograbber
 
         private void startdl()
         {
-            Appstate.state.currentaction = new GrabVideo(URLEnterBox.Text, OpenAfterDLCB.IsChecked.GetValueOrDefault(),
-                HQCB.IsChecked.GetValueOrDefault(), AutosaveCB.IsChecked.GetValueOrDefault());
+            Appstate.state.currentaction = new GrabVideo(new ParsingRequest(URLEnterBox.Text,
+                            Appstate.state.resolution =
+                                RB480P.IsChecked.GetValueOrDefault()
+                                    ? ParsingRequest.RESOLUTION.R_480P
+                                    : ParsingRequest.RESOLUTION.R_360P,
+                            RBMP4.IsChecked.GetValueOrDefault()
+                                ? ParsingRequest.CONTAINER.C_MP4
+                                : ParsingRequest.CONTAINER.C_WEBM), OpenAfterDLCB.IsChecked.GetValueOrDefault(), AutosaveCB.IsChecked.GetValueOrDefault());
             Frame.Navigate(typeof (Evaluation));
         }
         
@@ -125,7 +139,14 @@ namespace EscapistVideograbber
 
         private void WaitZPBtn_Click(object sender, RoutedEventArgs e)
         {
-            Appstate.state.currentaction = new WaitForNewZP(OpenAfterDLCB.IsChecked.GetValueOrDefault(),
+            Appstate.state.currentaction = new WaitForNewZP(new ParsingRequest(Grabber.ZPLatestURL,
+                            Appstate.state.resolution =
+                                RB480P.IsChecked.GetValueOrDefault()
+                                    ? ParsingRequest.RESOLUTION.R_480P
+                                    : ParsingRequest.RESOLUTION.R_360P,
+                            RBMP4.IsChecked.GetValueOrDefault()
+                                ? ParsingRequest.CONTAINER.C_MP4
+                                : ParsingRequest.CONTAINER.C_WEBM), OpenAfterDLCB.IsChecked.GetValueOrDefault(),
                 AutosaveCB.IsChecked.GetValueOrDefault());
             Frame.Navigate(typeof (Evaluation));
         }

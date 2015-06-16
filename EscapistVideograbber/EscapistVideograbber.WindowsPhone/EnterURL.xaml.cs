@@ -1,6 +1,4 @@
-﻿//using Microsoft.Phone.Net.NetworkInformation;
-
-using System;
+﻿using System;
 using Windows.ApplicationModel.Resources;
 using Windows.Networking.Connectivity;
 using Windows.Phone.UI.Input;
@@ -71,7 +69,10 @@ namespace EscapistVideograbber
                 URLBox.Text = Appstate.state.EnteredURL;
             OpenAfterDLCB.IsChecked = Appstate.state.opendl;
             AutosaveCB.IsChecked = Appstate.state.autosave;
-            HQCB.IsChecked = Appstate.state.hq;
+            RB360P.IsChecked = Appstate.state.resolution == ParsingRequest.RESOLUTION.R_360P;
+            RB480P.IsChecked = Appstate.state.resolution == ParsingRequest.RESOLUTION.R_480P;
+            RBWebM.IsChecked = Appstate.state.container == ParsingRequest.CONTAINER.C_WEBM;
+            RBMP4.IsChecked = Appstate.state.container == ParsingRequest.CONTAINER.C_MP4;
             overrideNOWIFI = false;
 
             HardwareButtons.BackPressed += HardwareButtons_BackPressed;
@@ -95,9 +96,14 @@ namespace EscapistVideograbber
         private void NavigationHelper_SaveState(object sender, SaveStateEventArgs e)
         {
             Appstate.state.EnteredURL = URLBox.Text;
-            Appstate.state.opendl = OpenAfterDLCB.IsChecked.HasValue && OpenAfterDLCB.IsChecked.Value;
-            Appstate.state.hq = HQCB.IsChecked.HasValue && HQCB.IsChecked.Value;
-            Appstate.state.autosave = AutosaveCB.IsChecked.HasValue && AutosaveCB.IsChecked.Value;
+            Appstate.state.opendl = OpenAfterDLCB.IsChecked.GetValueOrDefault();
+            Appstate.state.container = RBMP4.IsChecked.GetValueOrDefault()
+                ? ParsingRequest.CONTAINER.C_MP4
+                : ParsingRequest.CONTAINER.C_WEBM;
+            Appstate.state.resolution = RB480P.IsChecked.GetValueOrDefault()
+                ? ParsingRequest.RESOLUTION.R_480P
+                : ParsingRequest.RESOLUTION.R_360P;
+            Appstate.state.autosave = AutosaveCB.IsChecked.GetValueOrDefault();
             HardwareButtons.BackPressed -= HardwareButtons_BackPressed;
         }
 
@@ -124,9 +130,18 @@ namespace EscapistVideograbber
             //if (DeviceNetworkInformation.IsWiFiEnabled && !DeviceNetworkInformation.IsCellularDataEnabled && DeviceNetworkInformation.IsNetworkAvailable)
             if (overrideNOWIFI || !NetworkInformation.GetInternetConnectionProfile().IsWwanConnectionProfile)
             {
-                Appstate.state.currentaction = new GrabVideo(URLBox.Text, OpenAfterDLCB.IsChecked.GetValueOrDefault(),
-                    HQCB.IsChecked.GetValueOrDefault(), AutosaveCB.IsChecked.GetValueOrDefault());
-                Frame.Navigate(typeof (Evaluation));
+                Appstate.state.currentaction =
+                    new GrabVideo(
+                        new ParsingRequest(URLBox.Text,
+                            Appstate.state.resolution =
+                                RB480P.IsChecked.GetValueOrDefault()
+                                    ? ParsingRequest.RESOLUTION.R_480P
+                                    : ParsingRequest.RESOLUTION.R_360P,
+                            RBMP4.IsChecked.GetValueOrDefault()
+                                ? ParsingRequest.CONTAINER.C_MP4
+                                : ParsingRequest.CONTAINER.C_WEBM), OpenAfterDLCB.IsChecked.GetValueOrDefault(),
+                        AutosaveCB.IsChecked.GetValueOrDefault());
+                Frame.Navigate(typeof(Evaluation));
             }
             else
                 await CommHelp.showmessage(ResourceLoader.GetForCurrentView().GetString("NoWIFImsg/text"));
@@ -152,7 +167,7 @@ namespace EscapistVideograbber
         private void ProbeBtn_Click(object sender, RoutedEventArgs e)
         {
             Appstate.state.currentaction = new GetLatestZP();
-            Frame.Navigate(typeof (Evaluation));
+            Frame.Navigate(typeof(Evaluation));
         }
 
         #region NavigationHelper-Registrierung
@@ -186,9 +201,16 @@ namespace EscapistVideograbber
 
         private void WaitZPBtn_Click(object sender, RoutedEventArgs e)
         {
-            Appstate.state.currentaction = new WaitForNewZP(HQCB.IsChecked.GetValueOrDefault(),
+            Appstate.state.currentaction = new WaitForNewZP(new ParsingRequest(Grabber.ZPLatestURL,
+                            Appstate.state.resolution =
+                                RB480P.IsChecked.GetValueOrDefault()
+                                    ? ParsingRequest.RESOLUTION.R_480P
+                                    : ParsingRequest.RESOLUTION.R_360P,
+                            RBMP4.IsChecked.GetValueOrDefault()
+                                ? ParsingRequest.CONTAINER.C_MP4
+                                : ParsingRequest.CONTAINER.C_WEBM), OpenAfterDLCB.IsChecked.GetValueOrDefault(),
                 AutosaveCB.IsChecked.GetValueOrDefault());
-            Frame.Navigate(typeof (Evaluation));
+            Frame.Navigate(typeof(Evaluation));
         }
     }
 }

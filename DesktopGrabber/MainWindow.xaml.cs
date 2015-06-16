@@ -93,7 +93,10 @@ namespace DesktopGrabber
             latestzpbtn.IsEnabled = true;
             pastebtn.IsEnabled = true;
             openchkbox.IsEnabled = true;
-            // hqchkbox.IsEnabled = true;
+            RBMP4.IsEnabled = true;
+            RBWebM.IsEnabled = true;
+            RB360p.IsEnabled = true;
+            RB480p.IsEnabled = true;
             autosavechkbox.IsEnabled = true;
             startbtn.IsEnabled = true;
             cancelbtn.IsEnabled = false;
@@ -214,7 +217,10 @@ namespace DesktopGrabber
             latestzpbtn.IsEnabled = false;
             pastebtn.IsEnabled = false;
             openchkbox.IsEnabled = false;
-            //hqchkbox.IsEnabled = false;
+            RBMP4.IsEnabled = false;
+            RBWebM.IsEnabled = false;
+            RB360p.IsEnabled = false;
+            RB480p.IsEnabled = false;
             autosavechkbox.IsEnabled = false;
             startbtn.IsEnabled = false;
             awaitbtn.IsEnabled = false;

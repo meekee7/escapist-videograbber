@@ -10,7 +10,7 @@ using Newtonsoft.Json.Linq;
 
 namespace GrabbingLib
 {
-    public class Grabber
+    public static class Grabber
     {
         public static readonly String ZPLatestURL =
             "http://www.escapistmagazine.com/videos/view/zero-punctuation/latest";
@@ -19,9 +19,6 @@ namespace GrabbingLib
         private static Downloader download;
 
         //There are no instances of Grabber
-        private Grabber()
-        {
-        }
 
         public static void finishDL()
         {
@@ -138,7 +135,7 @@ namespace GrabbingLib
                 canceltask.Invoke();
         }
 
-        public static async Task<ParsingResult> getJSONURL(String videopage)
+        private static async Task<ParsingResult> getJSONURL(String videopage)
         {
             var result = new ParsingResult();
             try
@@ -193,7 +190,7 @@ namespace GrabbingLib
             return result;
         }
 
-        public static String decodeJSONConfig(String hash, String jsontext)
+        private static String decodeJSONConfig(String hash, String jsontext)
         {
             var t = "";
             var a = "";
@@ -208,7 +205,7 @@ namespace GrabbingLib
             return r;
         }
 
-        public static async Task<ParsingResult> getVideoURL(ParsingRequest parsingRequest, ParsingResult htmlResult)
+        private static async Task<ParsingResult> getVideoURL(ParsingRequest parsingRequest, ParsingResult htmlResult)
         {
             var result = new ParsingResult();
             try

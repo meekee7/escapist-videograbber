@@ -63,16 +63,29 @@
                 Margin="150,155,0,0" Grid.Row="1" VerticalAlignment="Top" Width="309" Click="InsertZPBtn_Click" />
         <Button x:Uid="PasteFromCb" x:Name="InsertClipBtn" Content="PasteCB" HorizontalAlignment="Left"
                 Margin="150,208,0,0" Grid.Row="1" VerticalAlignment="Top" Width="309" Click="InsertClipBtn_Click" />
+        <CheckBox x:Name="OpenAfterDLCB" x:Uid="OpenAfterDLCheck" Content="OpenAfterDL" HorizontalAlignment="Left"
+                  Margin="150,250,0,0" Grid.Row="1" VerticalAlignment="Top" />
+        <CheckBox x:Name="AutosaveCB" x:Uid="AutosaveCheck" Content="Autosave" HorizontalAlignment="Left"
+                  Margin="150,279,0,0" Grid.Row="1" VerticalAlignment="Top" IsChecked="True" />
+
+        <Grid Margin="150,310,0,0" Width="309" Height="80" HorizontalAlignment="Left" VerticalAlignment="Top" Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition />
+                <ColumnDefinition />
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition />
+                <RowDefinition />
+            </Grid.RowDefinitions>
+            <RadioButton x:Name="RB360P" Grid.Row="0" Grid.Column="0" GroupName="Resolution" Content="360p"/>
+            <RadioButton x:Name="RB480P" Grid.Row="0" Grid.Column="1" GroupName="Resolution" Content="480p" IsChecked="True"/>
+            <RadioButton x:Name="RBWebM" Grid.Row="1" Grid.Column="0" GroupName="Container" Content="WebM"/>
+            <RadioButton x:Name="RBMP4" Grid.Row="1" Grid.Column="1" GroupName="Container" Content="MP4" IsChecked="True"/>
+        </Grid>
         <Button x:Uid="EvaluateURL" x:Name="StartBtn" Content="EvaluateURL" HorizontalAlignment="Left"
-                Margin="150,345,0,0" Grid.Row="1" VerticalAlignment="Top" Width="309" Click="StartBtn_Click" />
+                Margin="150,400,0,0" Grid.Row="1" VerticalAlignment="Top" Width="309" Click="StartBtn_Click" />
         <Button x:Uid="ProbeZPBtn" x:Name="ProbeZpButton" Content="Probe" HorizontalAlignment="Left"
-                Margin="150,398,0,0" Grid.Row="1" Width="309"
+                Margin="150,453,0,0" Grid.Row="1" Width="309"
                 VerticalAlignment="Top" Click="ProbeBtn_Click" />
-        <CheckBox x:Name="OpenAfterDLCB" x:Uid="OpenAfterDLCheck" Content="CheckBox" HorizontalAlignment="Left"
-                  Margin="225,250,0,0" Grid.Row="1" VerticalAlignment="Top" />
-        <CheckBox x:Name="HQCB" x:Uid="HQCheck" Content="CheckBox" HorizontalAlignment="Left" Margin="225,309,0,0"
-                  Grid.Row="1" VerticalAlignment="Top" IsChecked="True" />
-        <CheckBox x:Name="AutosaveCB" x:Uid="AutosaveCheck" Content="CheckBox" HorizontalAlignment="Left"
-                  Margin="225,279,0,0" Grid.Row="1" VerticalAlignment="Top" IsChecked="True" />
     </Grid>
 </Page>

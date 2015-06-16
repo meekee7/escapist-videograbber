@@ -15,17 +15,15 @@ namespace EscapistVideograbber
 
     internal class GrabVideo : UserAction
     {
-        public GrabVideo(string enteredURL, bool opendl, bool hq, bool autosave)
+        public GrabVideo(ParsingRequest request, bool opendl, bool autosave)
         {
-            this.enteredURL = enteredURL;
+            this.request = request;
             this.opendl = opendl;
-            this.hq = hq;
             this.autosave = autosave;
         }
 
-        public String enteredURL { get; private set; }
+        public ParsingRequest request { get; private set; }
         public bool opendl { get; private set; }
-        public bool hq { get; private set; }
         public bool autosave { get; private set; }
     }
 
@@ -35,8 +33,8 @@ namespace EscapistVideograbber
 
     internal class WaitForNewZP : GrabVideo
     {
-        public WaitForNewZP(bool opendl, bool autosave)
-            : base(Grabber.ZPLatestURL, opendl, false, autosave)
+        public WaitForNewZP(ParsingRequest request, bool opendl, bool autosave)
+            : base(request, opendl, autosave)
         {
         }
     }
@@ -49,7 +47,8 @@ namespace EscapistVideograbber
         {
             EnteredURL = String.Empty;
             opendl = false;
-            hq = true;
+            container = ParsingRequest.CONTAINER.C_MP4;
+            resolution = ParsingRequest.RESOLUTION.R_480P;
             autosave = true;
         }
 
@@ -57,16 +56,13 @@ namespace EscapistVideograbber
 
         public String EnteredURL { get; set; }
         public bool opendl { get; set; }
-        public bool hq { get; set; }
+        public ParsingRequest.CONTAINER container;
+        public ParsingRequest.RESOLUTION resolution;
         public bool autosave { get; set; }
     }
 
-    internal class CommHelp
+    internal static class CommHelp
     {
-        private CommHelp()
-        {
-        }
-
         public static async Task<bool> askyesno(String message, String title)
         {
             bool dialogresult = false;
@@ -106,9 +102,9 @@ namespace EscapistVideograbber
             }
         }
 
-        public static async Task<String> getAutoFilePath(String title)
+        public static async Task<String> getAutoFilePath(String title, ParsingRequest.CONTAINER container)
         {
-            String filename = title + ".mp4";
+            String filename = title + (container == ParsingRequest.CONTAINER.C_MP4 ? ".mp4" : ".webm");
             StorageFolder folder =
                 (await KnownFolders.VideosLibrary.GetFoldersAsync()).FirstOrDefault(
                     x => x.Name.Equals(Grabber.EscapistDir)) ??

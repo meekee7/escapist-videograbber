@@ -153,6 +153,7 @@ namespace EscapistVideograbber
                         //TODO see if there is a better way, maybe launch the video app directly
                         await Task.Delay(1000); //Seems to avoid the video not loading if we wait a little
                         await Launcher.LaunchFileAsync(await StorageFile.GetFileFromPathAsync(filepath));
+                        await Task.Delay(1000);
                     }
                     else
                     {
@@ -190,7 +191,7 @@ namespace EscapistVideograbber
 
         private async Task rungrabber(GrabVideo taskarguments)
         {
-            await Grabber.evaluateURL(taskarguments.enteredURL, taskarguments.hq, ShowError, Htmlaction(), Jsonaction(),
+            await Grabber.evaluateURL(taskarguments.request, ShowError, Htmlaction(), Jsonaction(),
                 getfilechooser(taskarguments.autosave), Downloader(taskarguments.opendl), CommHelp.showmessage,
                 Canceltask(), tokensource.Token);
         }
@@ -215,12 +216,12 @@ namespace EscapistVideograbber
             HardwareButtons.BackPressed -= HardwareButtons_BackPressed;
         }
 
-        private Func<String, Task<String>> getfilechooser(bool autosave)
+        private Func<String, ParsingRequest.CONTAINER, Task<String>> getfilechooser(bool autosave)
         {
-            return async title =>
+            return async (title, container) =>
             {
                 if (autosave)
-                    return await CommHelp.getAutoFilePath(title);
+                    return await CommHelp.getAutoFilePath(title, container);
 
                 Task waitforresult = Task.Factory.StartNew(() => signalevt.WaitOne());
                 //Extra task so we can await it
@@ -228,9 +229,10 @@ namespace EscapistVideograbber
                 await Task.Factory.StartNew(async () =>
                     await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
                     {
+                        String extension = container == ParsingRequest.CONTAINER.C_MP4 ? ".mp4" : ".webm";
                         var resload = ResourceLoader.GetForCurrentView();
-                        var picker = new FileSavePicker {DefaultFileExtension = ".mp4"};
-                        picker.FileTypeChoices.Add(resload.GetString("FileChoiceMP4"), new List<String> {".mp4"});
+                        var picker = new FileSavePicker {DefaultFileExtension = extension};
+                        picker.FileTypeChoices.Add(resload.GetString(container == ParsingRequest.CONTAINER.C_MP4 ? "FileChoiceMP4" : "FileChoiceWebM"), new List<String> {extension});
                         picker.SuggestedFileName = title;
                         picker.SuggestedStartLocation = PickerLocationId.VideosLibrary;
                         picker.PickSaveFileAndContinue(); //And this function just exits your thread and never returns

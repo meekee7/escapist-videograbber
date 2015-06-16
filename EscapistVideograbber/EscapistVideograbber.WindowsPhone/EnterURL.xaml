@@ -44,6 +44,9 @@
         <Grid Grid.Row="1" x:Name="ContentRoot" Margin="19,9.5,19,0">
             <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
                 <StackPanel VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
+                    <FlyoutBase.AttachedFlyout>
+                        <ListPickerFlyout/>
+                    </FlyoutBase.AttachedFlyout>
                     <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition />
@@ -56,12 +59,24 @@
                     </Grid>
                     <Button x:Uid="PasteCurrentZP" x:Name="InsertZPBtn" Content="InsertCurrentZP"
                             HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Click="InsertZPBtn_Click" />
-                    <CheckBox x:Name="OpenAfterDLCB" x:Uid="OpenAfterDLCheck" Content="Open"
+                    <CheckBox x:Name="OpenAfterDLCB" x:Uid="OpenAfterDLCheck" Content="OpenAfterDL"
                               HorizontalAlignment="Stretch" VerticalAlignment="Stretch" />
-                    <CheckBox x:Name="HQCB" x:Uid="HQCheck" Content="HQ" HorizontalAlignment="Stretch"
-                              VerticalAlignment="Stretch" IsChecked="True" />
                     <CheckBox x:Name="AutosaveCB" x:Uid="AutosaveCheck" Content="Autosave"
                               HorizontalAlignment="Stretch" VerticalAlignment="Stretch" IsChecked="True" />
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition />
+                            <ColumnDefinition />
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition/>
+                            <RowDefinition/>
+                        </Grid.RowDefinitions>
+                        <RadioButton x:Name="RB360P" Grid.Row="0" Grid.Column="0" GroupName="Resolution" Content="360p"/>
+                        <RadioButton x:Name="RB480P" Grid.Row="0" Grid.Column="1" GroupName="Resolution" Content="480p" IsChecked="True"/>
+                        <RadioButton x:Name="RBWebM" Grid.Row="1" Grid.Column="0" GroupName="Container" Content="WebM"/>
+                        <RadioButton x:Name="RBMP4" Grid.Row="1" Grid.Column="1" GroupName="Container" Content="MP4" IsChecked="True"/>
+                    </Grid>
                     <Button x:Uid="EvaluateURL" x:Name="StartBtn" Content="EvaluateURL" HorizontalAlignment="Stretch"
                             VerticalAlignment="Stretch" Click="StartBtn_Click" />
                     <Button x:Uid="ProbeZPBtn" x:Name="ProbeZpButton" Content="Probe" HorizontalAlignment="Stretch"

@@ -72,11 +72,11 @@ namespace EscapistVideograbber
             ProgBar.IsIndeterminate = true;
             StateLabel.Text = ResourceLoader.GetForCurrentView().GetString("StateLabel/HTMLParse");
             UserAction useraction = Appstate.state.currentaction;
-            if (useraction.GetType() == typeof(GrabVideo)) //If this becomes too big then turn this into a dictionary
+            if (useraction.GetType() == typeof (GrabVideo)) //If this becomes too big then turn this into a dictionary
                 await rungrabber(useraction as GrabVideo);
-            else if (useraction.GetType() == typeof(GetLatestZP))
+            else if (useraction.GetType() == typeof (GetLatestZP))
                 await getvideotitle(useraction as GetLatestZP);
-            else if (useraction.GetType() == typeof(WaitForNewZP))
+            else if (useraction.GetType() == typeof (WaitForNewZP))
                 await waitfornewepisode(useraction as WaitForNewZP);
         }
 
@@ -115,7 +115,7 @@ namespace EscapistVideograbber
             return new Downloadhelper((received, total) =>
             {
                 //Progress in the download was made
-                double progress = ((double) received / total) * 100;
+                double progress = ((double) received/total)*100;
                 ProgBar.Value = progress;
                 StateLabel.Text = resload.GetString("StateLabel/DLProg") + ' ' + (int) progress + " % ( "
                                   + Grabber.ByteSize(received) + " / "
@@ -163,7 +163,7 @@ namespace EscapistVideograbber
 
         private async Task rungrabber(GrabVideo taskarguments)
         {
-            await Grabber.evaluateURL(taskarguments.enteredURL, taskarguments.hq, ShowError, Htmlaction(), Jsonaction(),
+            await Grabber.evaluateURL(taskarguments.request, ShowError, Htmlaction(), Jsonaction(),
                 FileChooser(taskarguments.autosave), Downloader(taskarguments.opendl), CommHelp.showmessage,
                 Canceltask(), tokensource.Token);
         }
@@ -194,21 +194,24 @@ namespace EscapistVideograbber
         }
 
 
-        private Func<String, Task<String>> FileChooser(bool autosave)
+        private Func<String, ParsingRequest.CONTAINER, Task<String>> FileChooser(bool autosave)
         {
             //Technically this is a case for currying, but it looks like it would make this more complicated than necessary
-            return async title =>
+            return async (title, container) =>
             {
                 if (autosave)
-                    return await CommHelp.getAutoFilePath(title);
+                    return await CommHelp.getAutoFilePath(title, container);
                 ResourceLoader resload = ResourceLoader.GetForCurrentView();
+                String extension = container == ParsingRequest.CONTAINER.C_MP4 ? ".mp4" : ".webm";
                 var picker = new FileSavePicker
                 {
-                    DefaultFileExtension = ".mp4",
+                    DefaultFileExtension = extension,
                     SuggestedFileName = title,
                     SuggestedStartLocation = PickerLocationId.VideosLibrary
                 };
-                picker.FileTypeChoices.Add(resload.GetString("FileChoiceMP4"), new List<String> { ".mp4" });
+                picker.FileTypeChoices.Add(
+                    resload.GetString(container == ParsingRequest.CONTAINER.C_MP4 ? "FileChoiceMP4" : "FileChoiceWebM"),
+                    new List<String> {extension});
                 StorageFile file = await picker.PickSaveFileAsync();
                 return file != null ? file.Path : null;
             };
