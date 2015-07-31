@@ -1,5 +1,2 @@
-HTML agility pack borrowed from here, since the NuGet version is not ready for universal apps
-http://devproj.wordpress.com/2014/07/04/html-agility-pack-universal-apps/#more-7
-
 Note for downloads
 http://www.piotrwalat.net/downloading-files-in-windows-8-apps-using-background-transfer-feature/

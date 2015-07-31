@@ -229,10 +229,5 @@ namespace DesktopGrabber
             taskbar.ProgressState = TaskbarItemProgressState.Indeterminate;
             proglabel.Content = "Loading website";
         }
-
-        private void RadioButton_Checked(object sender, RoutedEventArgs e)
-        {
-
-        }
     }
 }

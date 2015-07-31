@@ -150,37 +150,28 @@ namespace GrabbingLib
                 htmldoc.Load(response.GetResponseStream());
                 HtmlNode head = htmldoc.DocumentNode.ChildNodes.FindFirst("head");
                 HtmlNode body = htmldoc.DocumentNode.ChildNodes.FindFirst("body");
-                if (head != null)
+                result.title =
+                    head?.ChildNodes.Where(node => node.Name.Equals("meta"))
+                        .FirstOrDefault(
+                            node => node.Attributes["name"] != null && node.Attributes["name"].Value.Equals("title"))
+                        .Attributes["content"].Value;
+                var playernode = body?.Descendants()
+                    .Where(node => node.Name.Equals("div"))
+                    .Where(node => node.Attributes.Contains("id"))
+                    .FirstOrDefault(node => node.Attributes["id"].Value.Equals("video_player_object"));
+                var codenode =
+                    playernode?.Descendants().FirstOrDefault(node => node.InnerText.Contains("imsVideo.play"));
+                if (codenode != null)
                 {
-                    result.title =
-                        head.ChildNodes.Where(node => node.Name.Equals("meta"))
-                            .FirstOrDefault(
-                                node => node.Attributes["name"] != null && node.Attributes["name"].Value.Equals("title"))
-                            .Attributes["content"].Value;
-                }
-                if (body != null)
-                {
-                    var playernode = body.Descendants()
-                      .Where(node => node.Name.Equals("div"))
-                      .Where(node => node.Attributes.Contains("id"))
-                      .FirstOrDefault(node => node.Attributes["id"].Value.Equals("video_player_object"));
-                    if (playernode != null)
-                    {
-                        var codenode =
-                            playernode.Descendants().FirstOrDefault(node => node.InnerText.Contains("imsVideo.play"));
-                        if (codenode != null)
-                        {
-                            String playerconfig =
-                                codenode.InnerText.Split(new[] { "imsVideo.play(" }, StringSplitOptions.None)[1];
-                            playerconfig = playerconfig.Substring(0, playerconfig.Length - 2);
-                            JObject jobj = JObject.Parse(playerconfig);
-                            String videoID = (String) jobj["videoID"];
-                            result.hash = (String) jobj["hash"];
-                            result.URL =
-                                "http://www.escapistmagazine.com/videos/vidconfig.php" + "?" + "videoID=" + videoID +
-                                "&" + "hash=" + result.hash;
-                        }
-                    }
+                    String playerconfig =
+                        codenode.InnerText.Split(new[] { "imsVideo.play(" }, StringSplitOptions.None)[1];
+                    playerconfig = playerconfig.Substring(0, playerconfig.Length - 2);
+                    JObject jobj = JObject.Parse(playerconfig);
+                    String videoID = (String)jobj["videoID"];
+                    result.hash = (String)jobj["hash"];
+                    result.URL =
+                        "http://www.escapistmagazine.com/videos/vidconfig.php" + "?" + "videoID=" + videoID +
+                        "&" + "hash=" + result.hash;
                 }
             }
             catch (Exception e)
@@ -199,9 +190,9 @@ namespace GrabbingLib
                 t += hash;
             t = t.Substring(0, jsontext.Length / 2);
             for (var o = 0; o < jsontext.Length; o += 2)
-                a += (char) Convert.ToInt32("" + jsontext[o] + jsontext[o + 1], 16);
+                a += (char)Convert.ToInt32("" + jsontext[o] + jsontext[o + 1], 16);
             for (var o = 0; o < t.Length; o++)
-                r += (char) (t[o] ^ a[o]);
+                r += (char)(t[o] ^ a[o]);
             return r;
         }
 
@@ -219,14 +210,14 @@ namespace GrabbingLib
 
                 jsontext = decodeJSONConfig(htmlResult.hash, jsontext);
                 JObject obj = JObject.Parse(jsontext);
-                result.title = ScrubHtml(WebUtility.HtmlDecode((String) obj["videoData"]["title"]));
+                result.title = ScrubHtml(WebUtility.HtmlDecode((String)obj["videoData"]["title"]));
                 String cont = parsingRequest.Container == ParsingRequest.CONTAINER.C_MP4 ? "video/mp4" : "video/webm";
                 String res = parsingRequest.Resolution == ParsingRequest.RESOLUTION.R_360P ? "360" : "480";
                 result.URL =
                     (String)
                         obj["files"]["videos"]
                             .Cast<JObject>()
-                            .FirstOrDefault(elem => elem["type"] != null && (String) elem["type"] == cont && elem["res"] != null && (String) elem["res"] == res)["src"];
+                            .FirstOrDefault(elem => elem["type"] != null && (String)elem["type"] == cont && elem["res"] != null && (String)elem["res"] == res)["src"];
             }
             catch (Exception e)
             {
@@ -252,9 +243,9 @@ namespace GrabbingLib
             if (size == 0)
                 return string.Format(formatTemplate, null, 0, sizeSuffixes[0]);
 
-            double absSize = Math.Abs((double) size);
+            double absSize = Math.Abs((double)size);
             double fpPower = Math.Log(absSize, 1000);
-            var intPower = (int) fpPower;
+            var intPower = (int)fpPower;
             int iUnit = intPower >= sizeSuffixes.Length ? sizeSuffixes.Length - 1 : intPower;
             double normSize = absSize / Math.Pow(1000, iUnit);
 
