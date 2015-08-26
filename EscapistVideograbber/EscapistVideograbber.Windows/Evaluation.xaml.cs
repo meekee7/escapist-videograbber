@@ -85,7 +85,7 @@ namespace EscapistVideograbber
             ResourceLoader resload = ResourceLoader.GetForCurrentView();
             await Grabber.waitForNewZPEpisode(tokensource.Token, title =>
                 CommHelp.askyesno(String.Format(resload.GetString("ConfirmTitle/Text"), title),
-                    resload.GetString("ConfirmTitle/Title")),
+                    resload.GetString("ConfirmTitle/Title")), taskarguments.request,
                 async () =>
                 {
                     await CommHelp.showmessage(resload.GetString("TimeoutMsg"));
