@@ -196,14 +196,21 @@ namespace DesktopGrabber
         private async void awaitbtn_Click(object sender, RoutedEventArgs e)
         {
             lockup();
+            var res = RB360p.IsChecked != null && RB360p.IsChecked.Value
+                ? ParsingRequest.RESOLUTION.R_360P
+                : ParsingRequest.RESOLUTION.R_480P;
+            var type = RBMP4.IsChecked != null && RBMP4.IsChecked.Value
+                ? ParsingRequest.CONTAINER.C_MP4
+                : ParsingRequest.CONTAINER.C_WEBM;
+            ParsingRequest request = new ParsingRequest(null, res, type);
             await
                 Grabber.waitForNewZPEpisode(tokensource.Token,
                     async oldtitle => MessageBox.Show("Please confirm that this is the old episode: " + oldtitle,
-                        "Confirm old episode", MessageBoxButton.YesNo) == MessageBoxResult.Yes, async () =>
+                        "Confirm old episode", MessageBoxButton.YesNo) == MessageBoxResult.Yes, request, async () =>
                         {
                             await showmessage("Timeout: maximum number of attempts reached");
                             purge();
-                        },
+                        }, 
                     attempt => proglabel.Content = "Attempt: " + attempt, () =>
                     {
                         //No specific action

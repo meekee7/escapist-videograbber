@@ -29,54 +29,62 @@ namespace GrabbingLib
             }
         }
 
-        public static async Task waitForNewZPEpisode(CancellationToken ctoken, Func<String, Task<bool>> confirmold,
+        public static async Task waitForNewZPEpisode(CancellationToken ctoken, Func<String, Task<bool>> confirmold, ParsingRequest request,
             Func<Task> timeoutaction, Action<int> updateattempt, Action foundaction, Action htmlaction,
             Action jsonaction, Func<String, ParsingRequest.CONTAINER, Task<String>> getFilePath, Downloader downloader, Func<String, Task> showmsg,
             Action canceltask, Func<Exception, Task> erroraction)
         {
-            String url = ZPLatestURL;
-            String oldname = (await getJSONURL(url)).title;
-            if (!ctoken.IsCancellationRequested && await confirmold.Invoke(oldname))
+            try
             {
-                int maximum = 500;
-                int attempt;
-                ParsingResult latestresult;
-                for (attempt = 1;
-                    (latestresult = await getJSONURL(url)).title.Equals(oldname) &&
-                    !ctoken.IsCancellationRequested &&
-                    attempt < maximum;
-                    attempt++)
+                String url = ZPLatestURL;
+                String oldname = (await getJSONURL(url)).title;
+                if (!ctoken.IsCancellationRequested && await confirmold.Invoke(ScrubHtml(oldname)))
                 {
-                    updateattempt.Invoke(attempt);
-                    try
+                    int maximum = 500;
+                    int attempt;
+                    ParsingResult latestresult;
+                    for (attempt = 1;
+                        (latestresult = await getJSONURL(url)).title.Equals(oldname)
+                        && !ctoken.IsCancellationRequested
+                        && attempt < maximum;
+                        attempt++)
                     {
-                        await Task.Delay(5000, ctoken);
+                        updateattempt.Invoke(attempt);
+                        try
+                        {
+                            await Task.Delay(5000, ctoken);
+                        }
+                        catch (TaskCanceledException)
+                        {
+                            //Already handled a few lines later
+                        }
                     }
-                    catch (TaskCanceledException)
+                    if (attempt == maximum)
+                        await timeoutaction.Invoke();
+                    else if (!ctoken.IsCancellationRequested)
                     {
-                        //Already handled a few lines later
+                        foundaction.Invoke();
+                        await
+                            downloadHelper(erroraction, htmlaction, jsonaction, getFilePath, downloader, showmsg,
+                                canceltask,
+                                ctoken, latestresult, request);
                     }
-                }
-                if (attempt == maximum)
-                    await timeoutaction.Invoke();
-                else if (!ctoken.IsCancellationRequested)
-                {
-                    foundaction.Invoke();
-                    await
-                        downloadHelper(erroraction, htmlaction, jsonaction, getFilePath, downloader, showmsg, canceltask,
-                            ctoken, latestresult, null);
+                    else
+                        canceltask.Invoke();
                 }
                 else
                     canceltask.Invoke();
             }
-            else
-                canceltask.Invoke();
+            catch (Exception e)
+            {
+                await erroraction(e);
+            }
         }
 
         public static async Task<String> getLatestZPTitle()
         {
             ParsingResult parsingresult = await getJSONURL(ZPLatestURL);
-            return parsingresult.error == null ? parsingresult.title : parsingresult.error.ToString();
+            return parsingresult.error == null ? ScrubHtml(parsingresult.title) : parsingresult.error.ToString();
         }
 
         //showmsg is for debugging
@@ -117,7 +125,8 @@ namespace GrabbingLib
                 canceltask.Invoke();
                 return;
             }
-            String title = String.Join(" ", htmlresult.title.Split(Path.GetInvalidFileNameChars()));
+            String title = ScrubHtml(htmlresult.title);
+            title = String.Join(" ", title.Split(Path.GetInvalidFileNameChars()));
             title = Regex.Replace(title, @"\s+", " ").Trim();
             //Title may contain : and " characters and needs to be beautified
             String path = await getFilePath.Invoke(title, request.Container);
@@ -210,7 +219,7 @@ namespace GrabbingLib
 
                 jsontext = decodeJSONConfig(htmlResult.hash, jsontext);
                 JObject obj = JObject.Parse(jsontext);
-                result.title = ScrubHtml(WebUtility.HtmlDecode((String)obj["videoData"]["title"]));
+                result.title = ScrubHtml((String)obj["videoData"]["title"]);
                 String cont = parsingRequest.Container == ParsingRequest.CONTAINER.C_MP4 ? "video/mp4" : "video/webm";
                 String res = parsingRequest.Resolution == ParsingRequest.RESOLUTION.R_360P ? "360" : "480";
                 result.URL =
@@ -231,7 +240,7 @@ namespace GrabbingLib
         {
             String step1 = Regex.Replace(value, @"<[^>]+>|&nbsp;", "").Trim();
             String step2 = Regex.Replace(step1, @"\s{2,}", " ");
-            return step2;
+            return WebUtility.HtmlDecode(step2);
         }
 
         public static string ByteSize(ulong size)
