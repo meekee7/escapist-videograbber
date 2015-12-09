@@ -227,7 +227,7 @@ namespace GrabbingLib
                         obj["files"]["videos"]
                             .Cast<JObject>()
                             .FirstOrDefault(elem => elem["type"] != null && (String)elem["type"] == cont && elem["res"] != null && (String)elem["res"] == res)["src"];
-                if (result.URL.Length != 0 && !result.URL.StartsWith("http"))
+                if (result.URL.Length != 0 && !result.URL.StartsWith("http:"))
                     result.URL = "http:" + result.URL;
             }
             catch (Exception e)
