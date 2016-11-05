@@ -174,7 +174,7 @@ namespace GrabbingLib
                 {
                     String playerconfig =
                         codenode.InnerText.Split(new[] { "imsVideo.play(" }, StringSplitOptions.None)[1];
-                    playerconfig = playerconfig.Substring(0, playerconfig.Length - 2);
+                    playerconfig = playerconfig.Substring(0, playerconfig.IndexOf('}') + 1);
                     JObject jobj = JObject.Parse(playerconfig);
                     String videoID = (String)jobj["videoID"];
                     result.hash = (String)jobj["hash"];

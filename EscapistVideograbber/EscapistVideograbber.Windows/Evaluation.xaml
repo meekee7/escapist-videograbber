@@ -46,7 +46,9 @@
             <TextBlock x:Uid="AppNameBar" x:Name="pageTitle" Text="{StaticResource AppName}" Style="{StaticResource HeaderTextBlockStyle}" Grid.Column="1" 
                         IsHitTestVisible="false" TextWrapping="NoWrap" VerticalAlignment="Bottom" Margin="0,0,30,40"/>
         </Grid>
-        <TextBlock x:Name="StateLabel" HorizontalAlignment="Left" Margin="619,352,0,0" Grid.Row="1" TextWrapping="Wrap" Text="StateOfEvaluation" VerticalAlignment="Top" FontSize="16"/>
-        <ProgressBar x:Name="ProgBar" HorizontalAlignment="Left" Height="10" Margin="633,400,0,0" Grid.Row="1" VerticalAlignment="Top" Width="100" IsIndeterminate="True"/>
+        <StackPanel Grid.Row="1" HorizontalAlignment="Center" VerticalAlignment="Center">
+        <TextBlock x:Name="StateLabel" HorizontalAlignment="Center" TextWrapping="Wrap" Text="StateOfEvaluation" VerticalAlignment="Top" FontSize="16"/>
+        <ProgressBar x:Name="ProgBar" HorizontalAlignment="Center" Height="10" VerticalAlignment="Top" Width="100" IsIndeterminate="True"/>
+        </StackPanel>
     </Grid>
 </Page>

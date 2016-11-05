@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+    <TextView
+        android:text="Insert Escapist URL here:"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/textView1" />
+    <EditText
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/urlbox"
+        android:inputType="textUri" />
+    <Button
+        android:text="Clear"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/clearbtn" />
+    <Button
+        android:text="Insert current ZP episode"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/latestzpbtn" />
+    <Button
+        android:text="Paste from clipboard"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/pastebtn" />
+    <CheckBox
+        android:text="Open after download"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/openchkbx" />
+    <CheckBox
+        android:text="Save under Videos\\Escapist"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/savechkbx"
+        android:checked="true"
+        android:enabled="false" />
+    <TableLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/tableLayout1">
+        <TableRow
+            android:id="@+id/tableRow1">
+            <RadioGroup
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/radioGroup1">
+                <RadioButton
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="360p"
+                    android:id="@+id/res360pchc" />
+                <RadioButton
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:checked="true"
+                    android:text="480p"
+                    android:id="@+id/res480pchc" />
+            </RadioGroup>
+            <RadioGroup
+                android:id="@+id/radioGroup2"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+                <RadioButton
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:checked="true"
+                    android:text="MP4"
+                    android:id="@+id/typeMP4chc" />
+                <RadioButton
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="WebM"
+                    android:id="@+id/typeWebMchc" />
+            </RadioGroup>
+        </TableRow>
+    </TableLayout>
+    <Button
+        android:text="Evaluate"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/evaluatebtn" />
+    <Button
+        android:text="Current ZP title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/zptitlebtn" />
+    <Button
+        android:text="Await new episode"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/awaitbtn" />
+    <TextView
+        android:text="Medium Text"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/statustxt" />
+    <ProgressBar
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/progbar"
+        android:indeterminate="false"
+        android:indeterminateBehavior="repeat"
+        android:indeterminateOnly="false"
+        android:progress="0"
+        android:max="100" />
+</LinearLayout>

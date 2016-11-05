@@ -55,7 +55,7 @@
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup>
-    <ManifestCertificateThumbprint>AB3A1107C6FB437D831ECBDC027BCC47BA53BB51</ManifestCertificateThumbprint>
+    <ManifestCertificateThumbprint>F5A77A7236231AE01DB87E0039619B83072940C1</ManifestCertificateThumbprint>
   </PropertyGroup>
   <PropertyGroup>
     <ManifestKeyFile>DesktopGrabber_TemporaryKey.pfx</ManifestKeyFile>

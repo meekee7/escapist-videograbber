@@ -56,19 +56,20 @@
                        Style="{StaticResource HeaderTextBlockStyle}" Grid.Column="1"
                        IsHitTestVisible="false" TextWrapping="NoWrap" VerticalAlignment="Bottom" Margin="0,0,30,40" />
         </Grid>
+        <StackPanel Grid.Row="1" HorizontalAlignment="Center" VerticalAlignment="Center">
         <TextBox x:Uid="URLBox" x:Name="URLEnterBox" Header="EnterURLHere" HorizontalAlignment="Left"
-                 Margin="153,76,0,0" Grid.Row="1" VerticalAlignment="Top" Width="303" InputScope="Url"
+                  VerticalAlignment="Top" Width="303" InputScope="Url"
                  PlaceholderText="URLWriteHere" KeyDown="URLEnterBox_KeyDown" />
         <Button x:Uid="PasteCurrentZP" x:Name="InsertZPBtn" Content="InsertCurrentZP" HorizontalAlignment="Left"
-                Margin="150,155,0,0" Grid.Row="1" VerticalAlignment="Top" Width="309" Click="InsertZPBtn_Click" />
+                VerticalAlignment="Top" Width="309" Click="InsertZPBtn_Click" />
         <Button x:Uid="PasteFromCb" x:Name="InsertClipBtn" Content="PasteCB" HorizontalAlignment="Left"
-                Margin="150,208,0,0" Grid.Row="1" VerticalAlignment="Top" Width="309" Click="InsertClipBtn_Click" />
+                VerticalAlignment="Top" Width="309" Click="InsertClipBtn_Click" />
         <CheckBox x:Name="OpenAfterDLCB" x:Uid="OpenAfterDLCheck" Content="OpenAfterDL" HorizontalAlignment="Left"
-                  Margin="150,250,0,0" Grid.Row="1" VerticalAlignment="Top" />
+                  VerticalAlignment="Top" />
         <CheckBox x:Name="AutosaveCB" x:Uid="AutosaveCheck" Content="Autosave" HorizontalAlignment="Left"
-                  Margin="150,279,0,0" Grid.Row="1" VerticalAlignment="Top" IsChecked="True" />
+                   VerticalAlignment="Top" IsChecked="True" />
 
-        <Grid Margin="150,310,0,0" Width="309" Height="80" HorizontalAlignment="Left" VerticalAlignment="Top" Grid.Row="1">
+        <Grid  Width="309" Height="80" HorizontalAlignment="Left" VerticalAlignment="Top" >
             <Grid.ColumnDefinitions>
                 <ColumnDefinition />
                 <ColumnDefinition />
@@ -83,9 +84,10 @@
             <RadioButton x:Name="RBMP4" Grid.Row="1" Grid.Column="1" GroupName="Container" Content="MP4" IsChecked="True"/>
         </Grid>
         <Button x:Uid="EvaluateURL" x:Name="StartBtn" Content="EvaluateURL" HorizontalAlignment="Left"
-                Margin="150,400,0,0" Grid.Row="1" VerticalAlignment="Top" Width="309" Click="StartBtn_Click" />
+                 VerticalAlignment="Top" Width="309" Click="StartBtn_Click" />
         <Button x:Uid="ProbeZPBtn" x:Name="ProbeZpButton" Content="Probe" HorizontalAlignment="Left"
-                Margin="150,453,0,0" Grid.Row="1" Width="309"
+                 Width="309"
                 VerticalAlignment="Top" Click="ProbeBtn_Click" />
+        </StackPanel>
     </Grid>
 </Page>
