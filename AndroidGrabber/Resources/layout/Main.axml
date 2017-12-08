@@ -96,19 +96,4 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:id="@+id/awaitbtn" />
-    <TextView
-        android:text="Medium Text"
-        android:textAppearance="?android:attr/textAppearanceMedium"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:id="@+id/statustxt" />
-    <ProgressBar
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:id="@+id/progbar"
-        android:indeterminate="false"
-        android:indeterminateBehavior="repeat"
-        android:indeterminateOnly="false"
-        android:progress="0"
-        android:max="100" />
 </LinearLayout>

@@ -83,7 +83,7 @@ namespace DesktopGrabber
             if (Clipboard.ContainsText())
             {
                 urlbox.Text = Clipboard.GetText();
-                startdl();
+                //startdl();
             }
         }
 

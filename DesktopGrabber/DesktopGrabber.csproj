@@ -55,10 +55,10 @@
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup>
-    <ManifestCertificateThumbprint>F5A77A7236231AE01DB87E0039619B83072940C1</ManifestCertificateThumbprint>
+    <ManifestCertificateThumbprint>C2E5DEA45D9CB953E68D1AF6A336718017ADF42F</ManifestCertificateThumbprint>
   </PropertyGroup>
   <PropertyGroup>
-    <ManifestKeyFile>DesktopGrabber_TemporaryKey.pfx</ManifestKeyFile>
+    <ManifestKeyFile>DesktopGrabber_1_TemporaryKey.pfx</ManifestKeyFile>
   </PropertyGroup>
   <PropertyGroup>
     <GenerateManifests>true</GenerateManifests>
@@ -118,6 +118,7 @@
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
+    <None Include="DesktopGrabber_1_TemporaryKey.pfx" />
     <None Include="DesktopGrabber_TemporaryKey.pfx" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>

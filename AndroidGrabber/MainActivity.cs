@@ -41,7 +41,7 @@ namespace AndroidGrabber
         private async Task<string> FileChooser(string title, ParsingRequest.CONTAINER container)
         {
             string extension = container == ParsingRequest.CONTAINER.C_MP4 ? ".mp4" : ".webm";
-            //TODO expand this when filechoose was added
+            //TODO expand this when a filechoose is added
             string videopath = Path.Combine(Android.OS.Environment.ExternalStorageDirectory.AbsolutePath, Android.OS.Environment.DirectoryMovies, Grabber.EscapistDir);
             if (!Directory.Exists(videopath))
                 Directory.CreateDirectory(videopath);
@@ -169,7 +169,8 @@ namespace AndroidGrabber
                         },
                     attempt => FindViewById<TextView>(Resource.Id.statustxt).Text = "Attempt: " + attempt, () =>
                     {
-                        //No specific action
+                        Vibrator vibrator = (Vibrator)this.GetSystemService(Context.VibratorService);
+                        vibrator.Vibrate(200);
                     }, () => FindViewById<TextView>(Resource.Id.statustxt).Text = "Loading website",
                     () => FindViewById<TextView>(Resource.Id.statustxt).Text = "Loading video data", 
                     FileChooser, new Downloadhelper(Updatehandler, Finishhandler),

@@ -149,10 +149,12 @@ namespace GrabbingLib
             var result = new ParsingResult();
             try
             {
-                WebRequest request = WebRequest.CreateHttp(videopage);
+                HttpWebRequest request = WebRequest.CreateHttp(videopage);
                 if (videopage.Equals(ZPLatestURL)) //If we are waiting for a specific episode, then we can allow caching
                     request.Headers[HttpRequestHeader.CacheControl] = "no-cache"; //or use the default mode
                 request.Credentials = CredentialCache.DefaultCredentials;
+                request.CookieContainer = new CookieContainer();
+                request.CookieContainer.Add(new Uri("escapistmagazine.com"),  new Cookie("age_gate_birthday", "19870313"));
                 WebResponse response = await request.GetResponseAsync();
 
                 var htmldoc = new HtmlDocument();
